@@ -1,0 +1,41 @@
+.day-cell {
+    flex: 1; /* Ensures the cell takes up equal space */
+    display: flex;
+    flex-direction: column;
+    justify-content: start; /* Aligns content to the top */
+    align-items: center; /* Centers content horizontally */
+    padding: 10px;
+    border-right: 1px solid #ddd; /* Adds subtle borders */
+    border-bottom: 1px solid #ddd;
+    min-height: 100px; /* Adjust based on your preference */
+    background-color: #fff; /* Consider using a variable or a class for different types of days */
+  }
+  
+  .day-cell:last-child {
+    border-right: none; /* Removes right border for the last cell in a row */
+  }
+  
+  .day-number {
+    font-weight: bold;
+    margin-bottom: 8px; /* Space between the day number and any events */
+  }
+
+  .not-current-month {
+    color: #bdbdbd; /* Grey color for days not in the current month */
+  }
+  
+  .event {
+    font-size: 0.85em;
+    margin-top: 4px;
+    background-color: #EAEAEA; /* Background for events */
+    border-radius: 4px;
+    padding: 2px 5px;
+    text-align: center;
+    width: 90%; /* Makes the event tags a bit narrower than the cell width */
+  }
+  
+  .day-cell.selected {
+    border: 2px solid #34495E; /* Or any color that indicates selection */
+  }
+  /* Consider adding styles for special days (today, holidays, etc.) */
+  

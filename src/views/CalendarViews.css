@@ -1,0 +1,44 @@
+.calendar-view {
+  display: flex;
+  flex-direction: column;
+  width: 100%; /* Ensure the calendar view takes up full container width */
+  max-width: 1200px; /* Or your desired max width */
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  padding: 15px;
+  background-color: #2C3E50; /* Dark background for header */
+  color: #ffffff; /* Light text */
+  font-weight: bold;
+}
+
+.icon {
+  cursor: pointer;
+  background-color: #34495E; /* Slightly lighter background for buttons */
+  padding: 10px 15px;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.icon:hover {
+  background-color: #4A6278; /* Highlight on hover */
+}
+
+.days.row, .body .row {
+  display: flex;
+  justify-content: space-around;
+}
+
+.title {
+  font-weight: bold;
+  font-size: x-large;
+  text-align: center;
+}
+
+.days-of-week {
+  font-weight: bold;
+  margin: 10px;
+}
+
