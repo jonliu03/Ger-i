@@ -48,7 +48,7 @@ const AddEventPopup = ({ closePopup, editingEvent = null }) => {
     handleSubmit();
   }
 
-  useSocket('Confirm', () => handleSubmit());
+  useSocket(() => handleSubmit());
 
   return (
     <div className="popup-overlay">
