@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import './AddEventPopup.css';
 import { useCalendar } from '../contexts/CalendarContext';
 
@@ -20,7 +20,7 @@ const AddEventPopup = ({ closePopup, editingEvent = null }) => {
     }
   }, [editingEvent]);
 
-  const handleSubmit = () => {
+  const handleSubmit = useCallback(() => {
     
     // Since we're using datetime-local, eventDate includes both date and time
     // No need to split date and time for this use case
@@ -41,14 +41,14 @@ const AddEventPopup = ({ closePopup, editingEvent = null }) => {
       addEvent({ ...event}); 
     }
     closePopup();
-  };
+  }, [eventName, eventDate, editingEvent, addEvent, editEvent, closePopup]);
 
   const handleSubmitClick = (e) => {
     e.preventDefault();
     handleSubmit();
   }
 
-  useSocket(handleSubmit);
+  useSocket('Confirm', () => handleSubmit());
 
   return (
     <div className="popup-overlay">
