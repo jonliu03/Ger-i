@@ -1,53 +1,52 @@
 import React, { useState, useEffect } from 'react';
-import { format, startOfWeek, endOfWeek, addDays, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, addMonths, subMonths } from 'date-fns';
-import { useNavigate } from 'react-router-dom'; 
-import { useCalendar } from '../CalendarContext';
+import { format, isBefore, isAfter, startOfWeek, endOfWeek, addDays, startOfMonth, endOfMonth, isSameMonth, isSameDay, addMonths, subMonths } from 'date-fns';
+import { useNavigate } from 'react-router-dom';
+import { useCalendar, eventDateToOffsetString } from '../contexts/CalendarContext';
 import DayCell from '../components/CalendarComponents/DayCell';
+import AddEventPopup from '../components/AddEventPopup';
+import { useKeyboardNavigation } from '../components/Navigation/useKeyboardNavigation';
+import { useSocket } from '../components/Navigation/socket';
 import './CalendarViews.css';
 
 const MonthView = () => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
-  const { selectedDay, setSelectedDay } = useCalendar();
+  const { selectedDay, setSelectedDay, events } = useCalendar();
   const navigate = useNavigate();
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [editingEvent, setEditingEvent] = useState(null);
 
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      let newSelectedDay = selectedDay;
-      switch (e.key) {
-        case 'ArrowRight':
-          newSelectedDay = addDays(selectedDay, 1);
-          break;
-        case 'ArrowLeft':
-          newSelectedDay = addDays(selectedDay, -1);
-          break;
-        case 'ArrowUp':
-          newSelectedDay = addDays(selectedDay, -7);
-          break;
-        case 'ArrowDown':
-          newSelectedDay = addDays(selectedDay, 7);
-          break;
-        case 'Enter':
-          navigate(`/week`);
-          break;
-        default:
-          break;
-      }
-      if (!isSameDay(newSelectedDay, selectedDay)) {
-        setSelectedDay(newSelectedDay);
-      }
-    };
+  const handleEventClick = (event) => {
+    setEditingEvent(event); // Set the event to be edited
+    setIsPopupOpen(true); // Show the popup
+  };
 
-    window.addEventListener('keydown', handleKeyDown);
+  const closePopup = () => {
+    setIsPopupOpen(false);
+    setEditingEvent(null); // Reset editing event
+  };
 
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedDay, navigate]);
+  useKeyboardNavigation(() => {
+    navigate(`/week`);
+  });
+
+  useSocket(() => {
+    navigate(`/week`);
+  });
 
   const nextMonth = () => {
-    setCurrentMonth(addMonths(currentMonth, 1));
+    const newMonth = addMonths(currentMonth, 1);
+    setCurrentMonth(newMonth);
+    if (!isSameMonth(selectedDay, newMonth)) {
+      setSelectedDay(startOfMonth(newMonth));
+    }
   };
 
   const prevMonth = () => {
-    setCurrentMonth(subMonths(currentMonth, 1));
+    const newMonth = subMonths(currentMonth, 1);
+    setCurrentMonth(newMonth);
+    if (!isSameMonth(selectedDay, newMonth)) {
+      setSelectedDay(startOfMonth(newMonth));
+    }
   };
 
   const renderDaysOfWeek = () => {
@@ -71,20 +70,22 @@ const MonthView = () => {
     const monthEnd = endOfMonth(monthStart);
     const startDate = startOfWeek(monthStart);
     const endDate = endOfWeek(monthEnd);
-  
+
     let rows = [];
     let days = [];
     let day = startDate;
-  
+
     while (day <= endDate) {
       for (let i = 0; i < 7; i++) {
-        const cloneDay = day;
+        const dayEvents = events.filter(event => isSameDay(new Date(day), new Date(eventDateToOffsetString(event.date))));
         days.push(
-          <DayCell 
-            key={day.toString()} 
-            day={day} 
+          <DayCell
+            key={day.toString()}
+            day={day}
+            dayEvents={dayEvents}
             isSelected={isSameDay(day, selectedDay)}
-            isCurrentMonth={day.getMonth() === currentMonth.getMonth()}
+            isCurrentMonth={isSameMonth(day, currentMonth)}
+            onEventClick={handleEventClick}
           />
         );
         day = addDays(day, 1);
@@ -94,7 +95,7 @@ const MonthView = () => {
       );
       days = [];
     }
-  
+
     return <div className="body">{rows}</div>;
   };
 
@@ -111,10 +112,11 @@ const MonthView = () => {
           <div className="icon">Next</div>
         </div>
       </div>
-      <div className = "days-of-week">
+      <div className="days-of-week">
         {renderDaysOfWeek()}
       </div>
       {renderCells()}
+      {isPopupOpen && <AddEventPopup closePopup={closePopup} editingEvent={editingEvent} />}
     </div>
   );
 };

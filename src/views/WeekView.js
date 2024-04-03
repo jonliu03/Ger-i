@@ -1,60 +1,47 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { format, startOfWeek, endOfWeek, addDays, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, addMonths, subMonths } from 'date-fns';
-import { useCalendar } from '../CalendarContext'; // Ensure the import path is correct
+import { format, startOfWeek, endOfWeek, addDays, isSameDay, eachDayOfInterval } from 'date-fns';
+import { useCalendar, eventDateToOffsetString } from '../contexts/CalendarContext'; // Adjust import path as necessary
 import DayCell from '../components/CalendarComponents/DayCell';
-import './CalendarViews.css'; // Ensure the path to your CSS is correct
-import { render } from '@testing-library/react';
-
+import AddEventPopup from '../components/AddEventPopup';
+import './CalendarViews.css'; // Adjust import path as necessary
+import { useKeyboardNavigation } from '../components/Navigation/useKeyboardNavigation';
+import { useSocket } from '../components/Navigation/socket';
+  
 const WeekView = () => {
-    const { selectedDay, setSelectedDay } = useCalendar(); // Use the selectedDay from global state
+    const { events, selectedDay, setEditingEvent, setIsPopupOpen, isPopupOpen, editingEvent } = useCalendar();
     const navigate = useNavigate();
 
-    const startWeek = startOfWeek(selectedDay, { weekStartsOn: 0 }); // Week starts on Sunday
+    const startWeek = startOfWeek(selectedDay, { weekStartsOn: 0 }); // Adjust weekStartsOn if necessary
     const endWeek = endOfWeek(selectedDay, { weekStartsOn: 0 });
     const daysOfWeek = eachDayOfInterval({ start: startWeek, end: endWeek });
-    const renderDaysOfWeek = () => {
-        const dateFormat = "EEEE";
-        const days = [];
-        let startDate = startOfWeek(new Date());
 
-        for (let i = 0; i < 7; i++) {
-            days.push(
-                <div className="column col-center" key={i}>
-                    {format(addDays(startDate, i), dateFormat)}
-                </div>
-            );
-        }
+    useKeyboardNavigation(() => {
+        navigate(`/day`);
+    });
 
-        return <div className="days row">{days}</div>;
+    useSocket(() => {
+        navigate(`/day`);
+    });
+
+    const handleEventClick = (event) => {
+        setEditingEvent(event);
+        setIsPopupOpen(true);
     };
 
-
-    useEffect(() => {
-        const handleKeyDown = (e) => {
-            let newSelectedDay = selectedDay;
-            switch (e.key) {
-                case 'ArrowRight':
-                    newSelectedDay = addDays(selectedDay, 1);
-                    break;
-                case 'ArrowLeft':
-                    newSelectedDay = addDays(selectedDay, -1);
-                    break;
-                case 'Enter':
-                    navigate(`/day`);
-                    break;
-                default:
-                    break;
-            }
-            if (!isSameDay(newSelectedDay, selectedDay)) {
-                setSelectedDay(newSelectedDay);
-            }
-        };
-
-        window.addEventListener('keydown', handleKeyDown);
-
-        return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [selectedDay, navigate]);
+    // Function to render days of the week names
+    const renderDaysOfWeek = () => {
+        const dateFormat = "EEEE";
+        return (
+            <div className="days row">
+                {daysOfWeek.map((day, i) => (
+                    <div className="column col-center" key={i}>
+                        {format(day, dateFormat)}
+                    </div>
+                ))}
+            </div>
+        );
+    };
 
     return (
         <div className="calendar-view week-view">
@@ -66,16 +53,24 @@ const WeekView = () => {
             <div className="days-of-week">
                 {renderDaysOfWeek()}
             </div>
-            <div className="days row">
-                {daysOfWeek.map(day => (
-                    <DayCell
-                        key={day.toString()}
-                        day={day}
-                        isSelected={isSameDay(day, selectedDay)}
-                        isCurrentMonth={day.getMonth() === selectedDay.getMonth()}
-                    />
-                ))}
+            <div className="weekView days row">
+                {daysOfWeek.map(day => {
+                    // Filter events for the current day
+                    const dayEvents = events.filter(event => isSameDay(new Date(eventDateToOffsetString(event.date)), day));
+
+                    return (
+                        <DayCell
+                            key={day.toISOString()} // Using toISOString for a unique key
+                            day={day}
+                            dayEvents={dayEvents} // Pass filtered events to each DayCell
+                            onEventClick={handleEventClick} // Pass the function to handle event clicks
+                            isSelected={isSameDay(day, selectedDay)}
+                            isCurrentMonth={day.getMonth() === selectedDay.getMonth()}
+                        />
+                    );
+                })}
             </div>
+            {isPopupOpen && <AddEventPopup closePopup={() => setIsPopupOpen(false)} editingEvent={editingEvent} />}
         </div>
     );
 };

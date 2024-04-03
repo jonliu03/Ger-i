@@ -5,7 +5,7 @@ import WeekView from './views/WeekView';
 import DayView from './views/DayView';
 import CommunityEvents from './views/CommunityEvents';
 import Sidebar from './components/Navigation/Sidebar';
-import { CalendarProvider } from './CalendarContext';
+import { CalendarProvider } from './contexts/CalendarContext';
 
 function App() {
   return (
