@@ -20,8 +20,8 @@ const AddEventPopup = ({ closePopup, editingEvent = null }) => {
     }
   }, [editingEvent]);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = () => {
+    
     // Since we're using datetime-local, eventDate includes both date and time
     // No need to split date and time for this use case
 
@@ -43,13 +43,18 @@ const AddEventPopup = ({ closePopup, editingEvent = null }) => {
     closePopup();
   };
 
+  const handleSubmitClick = (e) => {
+    e.preventDefault();
+    handleSubmit();
+  }
+
   useSocket(handleSubmit);
 
   return (
     <div className="popup-overlay">
       <div className="popup-content">
         <h2>{editingEvent ? 'Edit Event' : 'Add New Event'}</h2>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmitClick}>
           <input 
             type="text"
             placeholder="Event Name"
