@@ -19,6 +19,11 @@ body, html {
   justify-content: space-between;
 }
 
+.sidebar.minimized {
+  width: 100px; /* Reduced width when minimized */
+  padding: 20px 10px; /* Adjust padding to keep content centered */
+}
+
 .sidebar-header {
   margin-bottom: 30px;
 }
@@ -48,6 +53,13 @@ body, html {
   transition: background-color 0.3s;
 }
 
+.nav ul li.selected {
+  background-color: #2980b9; /* Change color to indicate focus */
+}
+.nav ul li.focused {
+  background-color: #34a7f4; /* Change color to indicate focus */
+}
+
 .nav ul li:hover,
 .nav ul li:active {
   background-color: #34495E;
@@ -74,5 +86,8 @@ body, html {
 
 .add-event-btn:hover {
   background-color: #13856f; /* Darker shade on hover */
+}
+.focused {
+  background-color: #1feec5; /* Darker shade on hover */
 }
 

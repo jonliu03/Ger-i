@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { format, startOfWeek, endOfWeek, addDays, isSameDay, eachDayOfInterval } from 'date-fns';
-import { useCalendar, eventDateToOffsetString } from '../contexts/CalendarContext'; // Adjust import path as necessary
+import { useCalendar, eventDateToOffsetString } from '../contexts/CalendarContext';
+import { useView } from '../contexts/ViewContext';
 import DayCell from '../components/CalendarComponents/DayCell';
 import AddEventPopup from '../components/AddEventPopup';
 import './CalendarViews.css'; // Adjust import path as necessary
@@ -9,7 +10,8 @@ import { useKeyboardNavigation } from '../components/Navigation/useKeyboardNavig
 import { useSocket } from '../components/Navigation/socket';
   
 const WeekView = () => {
-    const { events, selectedDay, setEditingEvent, setIsPopupOpen, isPopupOpen, editingEvent } = useCalendar();
+    const { events, selectedDay, setEditingEvent, editingEvent } = useCalendar();
+    const { isPopupOpen, setIsPopupOpen } = useView();
     const navigate = useNavigate();
 
     const startWeek = startOfWeek(selectedDay, { weekStartsOn: 0 }); // Adjust weekStartsOn if necessary

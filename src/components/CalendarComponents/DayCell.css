@@ -49,6 +49,7 @@
     /* Keeps the content within the rounded corners */
     white-space: nowrap;
     /* Prevents the text from wrapping */
+    overflow: hidden;
     text-overflow: ellipsis;
     /* Adds an ellipsis if the text overflows */
 }

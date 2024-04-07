@@ -10,7 +10,12 @@ const CalendarContext = createContext({
 
 export const useCalendar = () => useContext(CalendarContext);
 
-const getRandomColor = () => '#' + Math.floor(Math.random() * 16777215).toString(16);
+const generateBrightColor = (minLightness = 60, maxLightness = 70) => {
+  const hue = Math.floor(Math.random() * 360);
+  const saturation = Math.floor(Math.random() * (100 - 50 + 1)) + 50; // Between 50% and 100%
+  const lightness = Math.floor(Math.random() * (maxLightness - minLightness + 1)) + minLightness; // Ensures it's above the minLightness threshold
+  return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+};
 
 // Used to handle time-zone bugs
 export const eventDateToOffsetString = (eventDate) => {
@@ -35,9 +40,12 @@ export const CalendarProvider = ({ children }) => {
   useEffect(() => {
     const eventsWithColors = events.map(event => ({
       ...event,
-      color: event.color || getRandomColor() // Assign a color if it doesn't have one
+      color: event.color || generateBrightColor() // Assign a color if it doesn't have one
     }));
-    setEvents(eventsWithColors);
+    const needsUpdate = events.some((event, index) => !event.color);
+    if (needsUpdate) {
+      setEvents(eventsWithColors);
+    }
   }, [events]);
 
   // Function to add a new event
@@ -62,8 +70,6 @@ export const CalendarProvider = ({ children }) => {
         setSelectedDay,
         editingEvent,
         setEditingEvent,
-        isPopupOpen,
-        setIsPopupOpen,
       }}
     >
       {children}

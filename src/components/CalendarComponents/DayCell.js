@@ -2,11 +2,12 @@ import React, { useEffect, useState } from 'react';
 import './DayCell.css';
 
 const darkenColor = (color) => {
-  let [r, g, b] = color.match(/\w\w/g).map((c) => parseInt(c, 16));
-  r = Math.max(Math.floor(r * 0.8), 0);
-  g = Math.max(Math.floor(g * 0.8), 0);
-  b = Math.max(Math.floor(b * 0.8), 0);
-  return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+  // Extract the H, S, and L values
+  const [h, s, l] = color.match(/\d+/g).map(Number);
+  // Decrease lightness by 20% to darken, ensuring it doesn't go below 0
+  const newL = Math.max(l - 20, 0);
+  // Reconstruct the HSL color string with the new lightness value
+  return `hsl(${h}, ${s}%, ${newL}%)`;
 };
 
 const formatTimeToAmPm = (time24) => {

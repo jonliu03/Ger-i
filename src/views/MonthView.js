@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { format, isBefore, isAfter, startOfWeek, endOfWeek, addDays, startOfMonth, endOfMonth, isSameMonth, isSameDay, addMonths, subMonths } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { useCalendar, eventDateToOffsetString } from '../contexts/CalendarContext';
+import { useView } from '../contexts/ViewContext';
 import DayCell from '../components/CalendarComponents/DayCell';
 import AddEventPopup from '../components/AddEventPopup';
 import { useKeyboardNavigation } from '../components/Navigation/useKeyboardNavigation';
@@ -10,10 +11,11 @@ import './CalendarViews.css';
 
 const MonthView = () => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
-  const { selectedDay, setSelectedDay, events } = useCalendar();
+  const { selectedDay, setSelectedDay, events} = useCalendar();
   const navigate = useNavigate();
-  const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState(null);
+
+  const { isPopupOpen, setIsPopupOpen } = useView();
 
   const handleEventClick = (event) => {
     setEditingEvent(event); // Set the event to be edited
@@ -22,7 +24,7 @@ const MonthView = () => {
 
   const closePopup = () => {
     setIsPopupOpen(false);
-    setEditingEvent(null); // Reset editing event
+    setEditingEvent(null) // Reset editing event
   };
 
   useKeyboardNavigation(() => {
@@ -48,6 +50,12 @@ const MonthView = () => {
       setSelectedDay(startOfMonth(newMonth));
     }
   };
+
+  useEffect(() => {
+    if (!isSameMonth(selectedDay, currentMonth)) {
+      setCurrentMonth(startOfMonth(selectedDay));
+    }
+  }, [selectedDay, currentMonth]);
 
   const renderDaysOfWeek = () => {
     const dateFormat = "EEEE";

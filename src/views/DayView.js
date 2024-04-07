@@ -1,9 +1,12 @@
 import React from 'react';
 import { useCalendar, eventDateToOffsetString } from '../contexts/CalendarContext';
 import AddEventPopup from '../components/AddEventPopup';
+import { useView } from '../contexts/ViewContext';
 
 const DayView = () => {
-  const { selectedDay, events, setEditingEvent, setIsPopupOpen, isPopupOpen, editingEvent } = useCalendar();
+  const { selectedDay, events, setEditingEvent, editingEvent } = useCalendar();
+  const { isPopupOpen, setIsPopupOpen } = useView();
+  
   const dayEvents = events.filter((event) => new Date(eventDateToOffsetString(event.date)).toDateString() === selectedDay.toDateString());
 
   const handleEventClick = (event) => {
