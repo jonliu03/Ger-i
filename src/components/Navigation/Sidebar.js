@@ -4,6 +4,10 @@ import AddEventPopup from '../AddEventPopup';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useView } from '../../contexts/ViewContext';
 
+import io from 'socket.io-client';
+
+const socket = io('http://localhost:3000');
+
 const Sidebar = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [minimized, setMinimized] = useState(true);
@@ -67,7 +71,44 @@ const Sidebar = () => {
 
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [minimized, focusedIndex, menuItems]);
+  }, [minimized, focusedIndex, menuItems, showPopup]);
+
+  useEffect(() => {
+    if (showPopup) {
+      return;
+    }
+
+    const handleButtonPress = (buttonId) => {
+      switch (buttonId) {
+        case 'DWM':
+          setMinimized(!minimized);
+          break;
+        case 'select':
+          if (focusedIndex < menuItems.length) {
+            handleNavigate(menuItems[focusedIndex].path);
+            setMinimized(!minimized);
+          } else {
+            setFocusedIndex((prevIndex) => (prevIndex + 1) % (menuItems.length + 1));
+            togglePopup(); // Toggle popup if "Add Event" button is focused
+          }
+          break;
+        case 'knobLeft':
+          setFocusedIndex((prevIndex) => prevIndex > 0 ? prevIndex - 1 : menuItems.length);
+          break;
+        case 'knobRight':
+          setFocusedIndex((prevIndex) => (prevIndex + 1) % (menuItems.length + 1));
+          break;
+        default:
+          break;
+      }
+    };
+
+    // Register the event listener for button presses
+    socket.on('buttonPress', handleButtonPress);
+
+    // Clean up the event listener on component unmount or when dependencies change
+    return () => socket.off('buttonPress', handleButtonPress);
+  }, [minimized, focusedIndex, menuItems, showPopup]);
 
 
 
