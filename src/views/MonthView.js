@@ -6,7 +6,7 @@ import { useView } from '../contexts/ViewContext';
 import DayCell from '../components/CalendarComponents/DayCell';
 import AddEventPopup from '../components/AddEventPopup';
 import { useKeyboardNavigation } from '../components/Navigation/useKeyboardNavigation';
-import { useSocket } from '../components/Navigation/socket';
+import { useSocketNavigation } from '../components/Navigation/useSocketNavigation';
 import './CalendarViews.css';
 
 const MonthView = () => {
@@ -31,7 +31,7 @@ const MonthView = () => {
     navigate(`/week`);
   });
 
-  useSocket(() => {
+  useSocketNavigation(() => {
     navigate(`/week`);
   });
 

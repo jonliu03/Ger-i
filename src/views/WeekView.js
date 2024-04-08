@@ -7,7 +7,7 @@ import DayCell from '../components/CalendarComponents/DayCell';
 import AddEventPopup from '../components/AddEventPopup';
 import './CalendarViews.css'; // Adjust import path as necessary
 import { useKeyboardNavigation } from '../components/Navigation/useKeyboardNavigation';
-import { useSocket } from '../components/Navigation/socket';
+import { useSocketNavigation } from '../components/Navigation/useSocketNavigation';
   
 const WeekView = () => {
     const { events, selectedDay, setEditingEvent, editingEvent } = useCalendar();
@@ -22,7 +22,7 @@ const WeekView = () => {
         navigate(`/day`);
     });
 
-    useSocket(() => {
+    useSocketNavigation(() => {
         navigate(`/day`);
     });
 

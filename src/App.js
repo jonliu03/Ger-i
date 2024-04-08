@@ -7,24 +7,27 @@ import CommunityEvents from './views/CommunityEvents';
 import Sidebar from './components/Navigation/Sidebar';
 import { CalendarProvider } from './contexts/CalendarContext';
 import { ViewProvider } from './contexts/ViewContext';
+import { SocketProvider } from './components/Navigation/socket';
 
 function App() {
   return (
-    <ViewProvider> 
-      <CalendarProvider> 
-        <Router>
-          <div className="app">
-            <Sidebar />
-            <Routes>
-              <Route path="/" element={<MonthView />} end />
-              <Route path="/week" element={<WeekView />} />
-              <Route path="/day" element={<DayView />} />
-              <Route path="/community" element={<CommunityEvents />} />
-            </Routes>
-          </div>
-        </Router>
-      </CalendarProvider>
-    </ViewProvider>
+    <SocketProvider>
+      <ViewProvider>
+        <CalendarProvider>
+          <Router>
+            <div className="app">
+              <Sidebar />
+              <Routes>
+                <Route path="/" element={<MonthView />} end />
+                <Route path="/week" element={<WeekView />} />
+                <Route path="/day" element={<DayView />} />
+                <Route path="/community" element={<CommunityEvents />} />
+              </Routes>
+            </div>
+          </Router>
+        </CalendarProvider>
+      </ViewProvider>
+    </SocketProvider>
   );
 }
 

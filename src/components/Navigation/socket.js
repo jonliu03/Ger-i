@@ -1,66 +1,29 @@
-import { useEffect } from 'react';
-import { useCalendar } from '../../contexts/CalendarContext'; // Adjust the import path as necessary
-import { addDays, isSameDay } from 'date-fns';
-import { useView } from '../../contexts/ViewContext';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import io from 'socket.io-client';
 
-// It's a good practice to initialize the socket connection outside of the hook or component
-// to avoid creating multiple connections on each render or re-initialization of the hook
-const socket = io('http://localhost:3000');
+// Create a Context for the socket
+const SocketContext = createContext();
 
-export const useSocket = (onEnter) => {
-    const { selectedDay, setSelectedDay } = useCalendar();
-    const { currentView, setCurrentView, isSidebarMinimized, setIsSidebarMinimized, isPopupOpen } = useView();
+// Custom hook to use the socket context
+export const useSocket = () => useContext(SocketContext);
+
+// SocketProvider component
+export const SocketProvider = ({ children }) => {
+    // State to store the initialized socket
+    const [socket, setSocket] = useState(null);
+
     useEffect(() => {
-        // Define the event listener as a separate function
-        const handleButtonPress = (buttonId) => {
-            if (!isSidebarMinimized || isPopupOpen) {
-                return;
-            }
-            else if (currentView == 'monthView') {
-                let newSelectedDay = selectedDay;
-                switch (buttonId) {
-                    case 'rightKnob':
-                        newSelectedDay = addDays(selectedDay, 1);
-                        break;
-                    case 'leftKnob':
-                        newSelectedDay = addDays(selectedDay, -1);
-                        break;
-                    case 'SElect':
-                        if (onEnter) onEnter();
-                        break;
-                    default:
-                        break;
-                }
-                if (!isSameDay(newSelectedDay, selectedDay)) {
-                    setSelectedDay(newSelectedDay);
-                }
-            } else if (currentView == 'weekView') {
-                let newSelectedDay = selectedDay;
-                switch (buttonId) {
-                    case 'rightKnob':
-                        newSelectedDay = addDays(selectedDay, 1);
-                        break;
-                    case 'leftKnob':
-                        newSelectedDay = addDays(selectedDay, -1);
-                        break;
-                    case 'SElect':
-                        if (onEnter) onEnter();
-                        break;
-                    default:
-                        break;
-                }
-                if (!isSameDay(newSelectedDay, selectedDay)) {
-                    setSelectedDay(newSelectedDay);
-                }
-            }
-        };
+        // Initialize socket connection
+        const newSocket = io('http://localhost:3000');
+        setSocket(newSocket);
 
-        // Register the event listener
-        socket.on('buttonPress', handleButtonPress);
+        // Clean up on component unmount
+        return () => newSocket.disconnect();
+    }, []);
 
-        // Clean up the event listener on component unmount or when dependencies change
-        return () => socket.off('buttonPress', handleButtonPress);
-    }, [selectedDay, setSelectedDay, onEnter]); // Include all dependencies used inside the effect
-
+    return (
+        <SocketContext.Provider value={socket}>
+            {children}
+        </SocketContext.Provider>
+    );
 };

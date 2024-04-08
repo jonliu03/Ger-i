@@ -1,18 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import '../../App.css';
 import AddEventPopup from '../AddEventPopup';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useView } from '../../contexts/ViewContext';
-
-import io from 'socket.io-client';
-
-const socket = io('http://localhost:3000');
+import { useSocket } from './socket';
 
 const Sidebar = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [minimized, setMinimized] = useState(true);
   const [focusedIndex, setFocusedIndex] = useState(0);
   const { isSidebarMinimized, setIsSidebarMinimized, isPopupOpen, setIsPopupOpen } = useView();
+  const socket = useSocket();
 
   const navigate = useNavigate();
   const menuItems = [
@@ -46,7 +44,39 @@ const Sidebar = () => {
     setIsSidebarMinimized(minimized);
   }, [minimized, setIsSidebarMinimized]);
 
-  
+  useEffect(() => {
+    const handleButtonPress = (buttonId) => {
+      // Listen for 'DayWeekMonth' buttonId event to toggle minimized state
+      if (buttonId === 'DayWeekMonth') {
+        setMinimized(!minimized);
+      } else if (buttonId === 'SElect' && !minimized) {
+        if (focusedIndex < menuItems.length) {
+          handleNavigate(menuItems[focusedIndex].path);
+          setMinimized(!minimized);
+        } else {
+          setFocusedIndex((prevIndex) => (prevIndex + 1) % (menuItems.length + 1));
+          togglePopup();
+        }
+      } else if (buttonId === 'leftKnob' && !minimized) {
+        setFocusedIndex((prevIndex) => prevIndex > 0 ? prevIndex - 1 : menuItems.length);
+      } else if (buttonId === 'rightKnob' && !minimized) {
+        setFocusedIndex((prevIndex) => (prevIndex + 1) % (menuItems.length + 1));
+      }
+    };
+
+    // Subscribe to socket event when the component mounts
+    if (socket) {
+      socket.on('buttonPress', handleButtonPress);
+    }
+
+    // Cleanup - Unsubscribe from socket event when the component unmounts
+    return () => {
+      if (socket) {
+        socket.off('buttonPress', handleButtonPress);
+      }
+    };
+  }, [socket, minimized]);
+
   useEffect(() => {
     if (showPopup) {
       return
@@ -72,44 +102,6 @@ const Sidebar = () => {
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, [minimized, focusedIndex, menuItems, showPopup]);
-
-  useEffect(() => {
-    if (showPopup) {
-      return;
-    }
-
-    const handleButtonPress = (buttonId) => {
-      switch (buttonId) {
-        case 'DayWeekMonth':
-          setMinimized(!minimized);
-          break;
-        case 'SElect':
-          if (focusedIndex < menuItems.length) {
-            handleNavigate(menuItems[focusedIndex].path);
-            setMinimized(!minimized);
-          } else {
-            setFocusedIndex((prevIndex) => (prevIndex + 1) % (menuItems.length + 1));
-            togglePopup(); // Toggle popup if "Add Event" button is focused
-          }
-          break;
-        case 'leftKnob':
-          setFocusedIndex((prevIndex) => prevIndex > 0 ? prevIndex - 1 : menuItems.length);
-          break;
-        case 'rightKnob':
-          setFocusedIndex((prevIndex) => (prevIndex + 1) % (menuItems.length + 1));
-          break;
-        default:
-          break;
-      }
-    };
-
-    // Register the event listener for button presses
-    socket.on('buttonPress', handleButtonPress);
-
-    // Clean up the event listener on component unmount or when dependencies change
-    return () => socket.off('buttonPress', handleButtonPress);
-  }, [minimized, focusedIndex, menuItems, showPopup]);
-  
 
 
   return (
