@@ -20,13 +20,13 @@ export const useSocket = (onEnter) => {
             else if (currentView == 'monthView') {
                 let newSelectedDay = selectedDay;
                 switch (buttonId) {
-                    case 'knobRight':
+                    case 'rightKnob':
                         newSelectedDay = addDays(selectedDay, 1);
                         break;
-                    case 'knobLeft':
+                    case 'leftKnob':
                         newSelectedDay = addDays(selectedDay, -1);
                         break;
-                    case 'select':
+                    case 'SElect':
                         if (onEnter) onEnter();
                         break;
                     default:
@@ -38,13 +38,13 @@ export const useSocket = (onEnter) => {
             } else if (currentView == 'weekView') {
                 let newSelectedDay = selectedDay;
                 switch (buttonId) {
-                    case 'knobRight':
+                    case 'rightKnob':
                         newSelectedDay = addDays(selectedDay, 1);
                         break;
-                    case 'knobLeft':
+                    case 'leftKnob':
                         newSelectedDay = addDays(selectedDay, -1);
                         break;
-                    case 'select':
+                    case 'SElect':
                         if (onEnter) onEnter();
                         break;
                     default:

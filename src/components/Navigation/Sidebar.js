@@ -46,7 +46,7 @@ const Sidebar = () => {
     setIsSidebarMinimized(minimized);
   }, [minimized, setIsSidebarMinimized]);
 
-
+  
   useEffect(() => {
     if (showPopup) {
       return
@@ -80,10 +80,10 @@ const Sidebar = () => {
 
     const handleButtonPress = (buttonId) => {
       switch (buttonId) {
-        case 'DWM':
+        case 'DayWeekMonth':
           setMinimized(!minimized);
           break;
-        case 'select':
+        case 'SElect':
           if (focusedIndex < menuItems.length) {
             handleNavigate(menuItems[focusedIndex].path);
             setMinimized(!minimized);
@@ -92,10 +92,10 @@ const Sidebar = () => {
             togglePopup(); // Toggle popup if "Add Event" button is focused
           }
           break;
-        case 'knobLeft':
+        case 'leftKnob':
           setFocusedIndex((prevIndex) => prevIndex > 0 ? prevIndex - 1 : menuItems.length);
           break;
-        case 'knobRight':
+        case 'rightKnob':
           setFocusedIndex((prevIndex) => (prevIndex + 1) % (menuItems.length + 1));
           break;
         default:
@@ -109,7 +109,7 @@ const Sidebar = () => {
     // Clean up the event listener on component unmount or when dependencies change
     return () => socket.off('buttonPress', handleButtonPress);
   }, [minimized, focusedIndex, menuItems, showPopup]);
-
+  
 
 
   return (
