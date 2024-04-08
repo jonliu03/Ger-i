@@ -3,7 +3,7 @@ import './AddEventPopup.css';
 import { useCalendar, eventDateToOffsetString } from '../contexts/CalendarContext';
 import { useView } from '../contexts/ViewContext';
 import * as chrono from 'chrono-node';
-import { SocketContext } from '../components/Navigation/socket';
+import { useSocket } from '../components/Navigation/socket';
 
 let recognition;
 let isCapturing = false;
@@ -13,7 +13,7 @@ const AddEventPopup = ({ closePopup, editingEvent = null }) => {
   const [eventDate, setEventDate] = useState('');
   const { addEvent, editEvent } = useCalendar();
   const { isPopupOpen, setIsPopupOpen } = useView();
-  const socket = useContext(SocketContext);
+  const socket = useSocket();
 
   useEffect(() => {
     // Pre-populate form if editing an event
@@ -61,7 +61,7 @@ const AddEventPopup = ({ closePopup, editingEvent = null }) => {
         case "Confirm":
           handleSubmit();
           break;
-        case "Delete":
+        case "DElete":
           closePopup();
           break;
         default:
