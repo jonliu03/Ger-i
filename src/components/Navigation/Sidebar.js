@@ -46,10 +46,12 @@ const Sidebar = () => {
 
   useEffect(() => {
     const handleButtonPress = (buttonId) => {
+      console.log("Button received: " + buttonId);
       // Listen for 'DayWeekMonth' buttonId event to toggle minimized state
       if (buttonId === 'DayWeekMonth') {
         setMinimized(!minimized);
       } else if (buttonId === 'SElect' && !minimized) {
+        console.log("Here:" + focusedIndex);
         if (focusedIndex < menuItems.length) {
           handleNavigate(menuItems[focusedIndex].path);
           setMinimized(!minimized);
@@ -75,7 +77,7 @@ const Sidebar = () => {
         socket.off('buttonPress', handleButtonPress);
       }
     };
-  }, [socket, minimized]);
+  }, [minimized, focusedIndex, menuItems, showPopup]);
 
   useEffect(() => {
     if (showPopup) {
