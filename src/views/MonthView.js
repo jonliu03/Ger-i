@@ -58,7 +58,7 @@ const MonthView = () => {
   }, [selectedDay, currentMonth]);
 
   const renderDaysOfWeek = () => {
-    const dateFormat = "EEEE";
+    const dateFormat = "E";
     const days = [];
     let startDate = startOfWeek(new Date());
 
