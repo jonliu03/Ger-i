@@ -33,7 +33,7 @@ const WeekView = () => {
 
     // Function to render days of the week names
     const renderDaysOfWeek = () => {
-        const dateFormat = "EEEE";
+        const dateFormat = "E";
         return (
             <div className="days row">
                 {daysOfWeek.map((day, i) => (

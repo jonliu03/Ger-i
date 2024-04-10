@@ -4,6 +4,7 @@ import AddEventPopup from '../AddEventPopup';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useView } from '../../contexts/ViewContext';
 import { useSocket } from './socket';
+import logo from '../../calLogo.png';
 
 const Sidebar = () => {
   const [showPopup, setShowPopup] = useState(false);
@@ -108,9 +109,10 @@ const Sidebar = () => {
 
   return (
     <div className={`sidebar ${minimized ? 'minimized' : ''}`}>
-      <div className="sidebar-header">
-        <h2>Bridge</h2>
+      <div className="sidebar-logo">
+        <img src={logo}/>
       </div>
+      <h3>Bridge</h3>
       <nav className="nav">
         <ul>
           {menuItems.map((item, index) => (
