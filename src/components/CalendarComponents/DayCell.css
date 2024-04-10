@@ -11,10 +11,11 @@
     border-right: 1px solid #ddd;
     /* Adds subtle borders */
     border-bottom: 1px solid #ddd;
-    min-height: 100px;
+    min-height: 70px;
     max-width: 150px;
     /* Adjust based on your preference */
     background-color: #fff;
+    font-size: 2rem;
     /* Consider using a variable or a class for different types of days */
 }
 

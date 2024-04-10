@@ -17,6 +17,7 @@ body, html {
   margin-right: 20px;
   box-sizing: border-box;
   justify-content: space-between;
+  font-size: 1.5rem;
 }
 
 .sidebar.minimized {
@@ -90,4 +91,3 @@ body, html {
 .focused {
   background-color: #1feec5; /* Darker shade on hover */
 }
-

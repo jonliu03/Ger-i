@@ -109,7 +109,7 @@ const Sidebar = () => {
   return (
     <div className={`sidebar ${minimized ? 'minimized' : ''}`}>
       <div className="sidebar-header">
-        <h2>Ger-i</h2>
+        <h2>Bridge</h2>
       </div>
       <nav className="nav">
         <ul>
