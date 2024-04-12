@@ -18,9 +18,9 @@ function App() {
             <div className="app">
               <Sidebar />
               <Routes>
-                <Route path="/" element={<MonthView />} end />
+                <Route path="/" element={<DayView />} end />
                 <Route path="/week" element={<WeekView />} />
-                <Route path="/day" element={<DayView />} />
+                <Route path="/month" element={<MonthView />} />
                 <Route path="/community" element={<CommunityEvents />} />
               </Routes>
             </div>

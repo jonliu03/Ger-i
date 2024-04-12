@@ -15,9 +15,9 @@ const Sidebar = () => {
 
   const navigate = useNavigate();
   const menuItems = [
-    { name: "Month View", path: "/" },
+    { name: "Day View", path: "/" },
     { name: "Week View", path: "/week" },
-    { name: "Day View", path: "/day" },
+    { name: "Month View", path: "/month" },
     { name: "Join Events", path: "/community" },
   ];
 

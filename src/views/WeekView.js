@@ -19,11 +19,11 @@ const WeekView = () => {
     const daysOfWeek = eachDayOfInterval({ start: startWeek, end: endWeek });
 
     useKeyboardNavigation(() => {
-        navigate(`/day`);
+        navigate(`/`);
     });
 
     useSocketNavigation(() => {
-        navigate(`/day`);
+        navigate(`/`);
     });
 
     const handleEventClick = (event) => {
