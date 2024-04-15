@@ -8,9 +8,8 @@ import logo from '../../calLogo.png';
 
 const Sidebar = () => {
   const [showPopup, setShowPopup] = useState(false);
-  const [minimized, setMinimized] = useState(true);
   const [focusedIndex, setFocusedIndex] = useState(0);
-  const { isSidebarMinimized, setIsSidebarMinimized, isPopupOpen, setIsPopupOpen } = useView();
+  const { isPopupOpen, setIsPopupOpen, setCurrentView } = useView();
   const socket = useSocket();
 
   const navigate = useNavigate();
@@ -23,47 +22,25 @@ const Sidebar = () => {
 
   const location = useLocation();
 
-  useEffect(() => {
-    if (minimized) {
-      const currentIndex = menuItems.findIndex(item => item.path === location.pathname);
-      if (currentIndex !== -1) {
-        setFocusedIndex(currentIndex);
-      }
-    }
-  }, [minimized, location, menuItems]);
-
   const togglePopup = () => {
-    setMinimized(true);
     setShowPopup(!showPopup);
   };
 
-  const handleNavigate = (path) => {
+  const handleNavigate = (path, index) => {
+    setFocusedIndex(index);
     navigate(path);
+    setCurrentView(path);
   };
 
   useEffect(() => {
-    setIsSidebarMinimized(minimized);
-  }, [minimized, setIsSidebarMinimized]);
 
-  useEffect(() => {
+    if (isPopupOpen) {
+      return
+    }
     const handleButtonPress = (buttonId) => {
       console.log("Button received: " + buttonId);
-      // Listen for 'DayWeekMonth' buttonId event to toggle minimized state
       if (buttonId === 'DayWeekMonth') {
-        setMinimized(!minimized);
-      } else if (buttonId === 'SElect' && !minimized) {
-        console.log("Here:" + focusedIndex);
-        if (focusedIndex < menuItems.length) {
-          handleNavigate(menuItems[focusedIndex].path);
-          setMinimized(!minimized);
-        } else {
-          setFocusedIndex((prevIndex) => (prevIndex + 1) % (menuItems.length + 1));
-          togglePopup();
-        }
-      } else if (buttonId === 'leftKnob' && !minimized) {
-        setFocusedIndex((prevIndex) => prevIndex > 0 ? prevIndex - 1 : menuItems.length);
-      } else if (buttonId === 'rightKnob' && !minimized) {
-        setFocusedIndex((prevIndex) => (prevIndex + 1) % (menuItems.length + 1));
+        // TODO
       }
     };
 
@@ -78,58 +55,42 @@ const Sidebar = () => {
         socket.off('buttonPress', handleButtonPress);
       }
     };
-  }, [minimized, focusedIndex, menuItems, showPopup]);
+  }, [focusedIndex, menuItems, showPopup]);
 
+  
   useEffect(() => {
-    if (showPopup) {
+    if (isPopupOpen) {
       return
     }
     const handleKeyPress = (e) => {
       if (e.key === 's') {
-        setMinimized(!minimized);
-      } else if (e.key === 'Enter' && !minimized) {
-        if (focusedIndex < menuItems.length) {
-          handleNavigate(menuItems[focusedIndex].path);
-          setMinimized(!minimized);
-        } else {
-          setFocusedIndex((prevIndex) => (prevIndex + 1) % (menuItems.length + 1));
-          togglePopup(); // Toggle popup if "Add Event" button is focused
-        }
-      } else if (e.key === 'ArrowUp' && !minimized) {
-        setFocusedIndex((prevIndex) => prevIndex > 0 ? prevIndex - 1 : menuItems.length);
-      } else if (e.key === 'ArrowDown' && !minimized) {
-        setFocusedIndex((prevIndex) => (prevIndex + 1) % (menuItems.length + 1));
+        setFocusedIndex((prevIndex) => (prevIndex + 1) % (menuItems.length));
+        handleNavigate(menuItems[(focusedIndex + 1) % menuItems.length].path, (focusedIndex + 1) % menuItems.length);
       }
     };
 
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [minimized, focusedIndex, menuItems, showPopup]);
+  }, [focusedIndex, menuItems, showPopup]);
 
 
   return (
-    <div className={`sidebar ${minimized ? 'minimized' : ''}`}>
+    <div className={`sidebar`}>
       <div className="sidebar-logo">
-        <img src={logo}/>
+        <img src={logo} />
       </div>
       <h3>Bridge</h3>
       <nav className="nav">
         <ul>
           {menuItems.map((item, index) => (
             <li key={index}
-              className={index === focusedIndex ? (minimized ? 'selected' : 'focused') : ''} // Apply focused class to the currently focused item
-              onClick={() => handleNavigate(item.path)}>
+              className={index === focusedIndex ? 'selected' : ''}
+              onClick={() => handleNavigate(item.path, index)}>
               {item.name}
             </li>
           ))}
         </ul>
       </nav>
-      <button
-        className={`add-event-btn ${focusedIndex === menuItems.length ? 'focused' : ''}`}
-        onClick={togglePopup}>
-        Add Event
-      </button>
-      {showPopup && <AddEventPopup closePopup={togglePopup} />}
     </div>
   );
 };

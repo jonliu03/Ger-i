@@ -7,17 +7,14 @@ import { addDays, isSameDay } from 'date-fns';
 export const useSocketNavigation = (onEnter) => {
     const socket = useSocket();
     const { selectedDay, setSelectedDay } = useCalendar();
-    const { currentView, setCurrentView, isSidebarMinimized, setIsSidebarMinimized, isPopupOpen } = useView();
+    const { currentView, setCurrentView, isPopupOpen } = useView();
 
     useEffect(() => {
         // Check if socket is connected
         if (!socket) return;
 
         const handleButtonPress = (buttonId) => {
-            if (!isSidebarMinimized || isPopupOpen) {
-                return;
-            }
-            else if (currentView == 'monthView') {
+            if (currentView == 'monthView') {
                 let newSelectedDay = selectedDay;
                 switch (buttonId) {
                     case 'rightKnob':
@@ -63,7 +60,5 @@ export const useSocketNavigation = (onEnter) => {
         return () => {
             socket.off('buttonPress', handleButtonPress);
         };
-    }, [socket, selectedDay, setSelectedDay, isSidebarMinimized, isPopupOpen]);
-
-    // The hook doesn't need to return anything unless you have other functionalities in mind
+    }, [socket, selectedDay, setSelectedDay, isPopupOpen]);
 };

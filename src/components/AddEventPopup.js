@@ -5,9 +5,10 @@ import { useView } from '../contexts/ViewContext';
 
 const AddEventPopup = ({ closePopup, editingEvent = null }) => {
   const [eventName, setEventName] = useState('');
-  const [eventDate, setEventDate] = useState('');
+  const [eventTime, setEventTime] = useState('');
   const [isCapturing, setIsCapturing] = useState(false);
   const [speechSocket, setSpeechSocket] = useState(new WebSocket('ws://localhost:3000/speech'));
+  const { selectedDay, setSelectedDay, events} = useCalendar();
   const { addEvent, editEvent } = useCalendar();
   const { isPopupOpen, setIsPopupOpen } = useView();
 
@@ -16,9 +17,8 @@ const AddEventPopup = ({ closePopup, editingEvent = null }) => {
     if (editingEvent) {
       // Use editingEvent's date and time directly for datetime-local input
       // Assuming editingEvent.date and editingEvent.time are properly formatted
-      const localDateTime = `${editingEvent.date}T${editingEvent.time}`;
       setEventName(editingEvent.name);
-      setEventDate(localDateTime); // This sets both date and time in the input
+      setEventTime(editingEvent.time); // This sets both date and time in the input
     }
   }, [editingEvent]);
 
@@ -73,29 +73,24 @@ const AddEventPopup = ({ closePopup, editingEvent = null }) => {
 
 
 
+  
   const handleSubmit = useCallback(() => {
-
-    // Since we're using datetime-local, eventDate includes both date and time
-    // No need to split date and time for this use case
-
-    // Prepare event object for adding or editing
     const event = {
-      ...editingEvent, // Spread existing event properties to retain id (if editing)
+      ...editingEvent,
       name: eventName,
-      date: eventDate.split('T')[0], // Extract just the date part
-      time: eventDate.split('T')[1], // Extract just the time part
+      date: selectedDay, // Using selectedDay for the date
+      time: eventTime, // Use state time
     };
-
-    // Determine whether to add a new event or edit an existing one
     if (editingEvent) {
       editEvent(event);
     } else {
-      addEvent({ ...event });
+      addEvent(event);
     }
     closePopup();
-  }, [eventName, eventDate, isPopupOpen, editingEvent, addEvent, editEvent, closePopup]);
+  }, [eventName, eventTime, selectedDay, editingEvent, addEvent, editEvent, closePopup]);
 
   const handleSubmitClick = (e) => {
+    console.log(selectedDay)
     e.preventDefault();
     handleSubmit();
   }
@@ -113,9 +108,9 @@ const AddEventPopup = ({ closePopup, editingEvent = null }) => {
             required
           />
           <input
-            type="datetime-local"
-            value={eventDate}
-            onChange={(e) => setEventDate(e.target.value)}
+            type="time"
+            value={eventTime}
+            onChange={(e) => setEventTime(e.target.value)}
             required
           />
           <div className="buttons">

@@ -19,11 +19,11 @@ const WeekView = () => {
     const daysOfWeek = eachDayOfInterval({ start: startWeek, end: endWeek });
 
     useKeyboardNavigation(() => {
-        navigate(`/`);
+        setIsPopupOpen(true);
     });
 
     useSocketNavigation(() => {
-        navigate(`/`);
+        setIsPopupOpen(true);
     });
 
     const handleEventClick = (event) => {
@@ -58,7 +58,7 @@ const WeekView = () => {
             <div className="weekView days row">
                 {daysOfWeek.map(day => {
                     // Filter events for the current day
-                    const dayEvents = events.filter(event => isSameDay(new Date(eventDateToOffsetString(event.date)), day));
+                    const dayEvents = events.filter(event => isSameDay(day, event.date));
 
                     return (
                         <DayCell

@@ -15,7 +15,7 @@ body, html {
   align-items: center;
   background-color: #2C3E50;
   color: #ECF0F1;
-  width: 250px;
+  width: 175px;
   padding: 20px;
   margin-right: 20px;
   box-sizing: border-box;
@@ -25,11 +25,6 @@ body, html {
 .sidebar-logo img {
   max-width: 100%; /* Ensures the image does not exceed the container's width */
   height: auto; /* Keeps the image's aspect ratio */
-}
-
-.sidebar.minimized {
-  width: 100px; /* Reduced width when minimized */
-  padding: 20px 10px; /* Adjust padding to keep content centered */
 }
 
 .sidebar-header {

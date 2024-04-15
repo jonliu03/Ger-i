@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { isToday } from 'date-fns';
 import './DayCell.css';
 
 const darkenColor = (color) => {
@@ -22,18 +23,16 @@ const DayCell = ({ day, dayEvents, isCurrentMonth, isSelected, onEventClick }) =
   const dayClassName = `day-cell ${isSelected ? 'selected' : ''} ${!isCurrentMonth ? 'not-current-month' : ''}`;
   const [hoveredEvent, setHoveredEvent] = useState(null);
 
+
+  const dayNumberStyle = isToday(day) ? { color: 'red' } : {};
+
   return (
     <div className={dayClassName}>
-      <span className="day-number">{day.getDate()}</span>
+      <span className="day-number" style={dayNumberStyle}>{day.getDate()}</span>
       <div className="events">
         {dayEvents.map((event, index) => (
-          <div key={index} className="event"
-            style={{ backgroundColor: hoveredEvent === index ? darkenColor(event.color) : event.color, color: '#ffffff' }}
-            onMouseEnter={() => setHoveredEvent(index)}
-            onMouseLeave={() => setHoveredEvent(null)}
-            onClick={() => onEventClick(event)}>
-            <span className="event-time">{formatTimeToAmPm(event.time)}</span> <span className="event-name">{event.name}</span>
-          </div>
+          <span key={index} className="event-indicator" style={{ backgroundColor: event.color }}
+                onClick={() => onEventClick(event)}></span>
         ))}
       </div>
     </div>

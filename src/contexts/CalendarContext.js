@@ -35,12 +35,11 @@ export const CalendarProvider = ({ children }) => {
   const [events, setEvents] = useState([]);
   const [selectedDay, setSelectedDay] = useState(new Date());
   const [editingEvent, setEditingEvent] = useState(null); // Track the event being edited
-  const [isPopupOpen, setIsPopupOpen] = useState(false); // Control the visibility of the AddEventPopup
 
   useEffect(() => {
     const eventsWithColors = events.map(event => ({
       ...event,
-      color: event.color || generateBrightColor() // Assign a color if it doesn't have one
+      color: event.color || `hsl(0, 100%, 75%)`// generateBrightColor() - deprecated
     }));
     const needsUpdate = events.some((event, index) => !event.color);
     if (needsUpdate) {
@@ -50,7 +49,18 @@ export const CalendarProvider = ({ children }) => {
 
   // Function to add a new event
   const addEvent = (newEvent) => {
-    setEvents((prevEvents) => [...prevEvents, { ...newEvent, id: Date.now() }]);
+    setEvents((prevEvents) => [...prevEvents, { ...newEvent, id: Date.now() }].sort(
+      (a, b) => {
+        const timeA = a.time.split(':').map(Number);
+        const timeB = b.time.split(':').map(Number);
+  
+        if (timeA[0] < timeB[0]) return -1;
+        if (timeA[0] > timeB[0]) return 1;
+        if (timeA[1] < timeB[1]) return -1;
+        if (timeA[1] > timeB[1]) return 1;
+        return 0;
+      }
+    ));
   };
 
   // Function to edit an existing event

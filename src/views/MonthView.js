@@ -28,11 +28,11 @@ const MonthView = () => {
   };
 
   useKeyboardNavigation(() => {
-    navigate(`/week`);
+    setIsPopupOpen(true);
   });
 
   useSocketNavigation(() => {
-    navigate(`/week`);
+    setIsPopupOpen(true);
   });
 
   const nextMonth = () => {
@@ -85,7 +85,7 @@ const MonthView = () => {
 
     while (day <= endDate) {
       for (let i = 0; i < 7; i++) {
-        const dayEvents = events.filter(event => isSameDay(new Date(day), new Date(eventDateToOffsetString(event.date))));
+        const dayEvents = events.filter(event => isSameDay(day, event.date));
         days.push(
           <DayCell
             key={day.toString()}

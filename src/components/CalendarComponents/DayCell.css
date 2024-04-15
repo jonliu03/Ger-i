@@ -53,6 +53,16 @@
     overflow: hidden;
     text-overflow: ellipsis;
     /* Adds an ellipsis if the text overflows */
+    font-size: 1rem;
+}
+
+.event-indicator {
+    height: 15px;
+    width: 15px;
+    background-color: #b12424;
+    border-radius: 50%;
+    display: inline-block;
+    margin: 2px;
 }
 
 

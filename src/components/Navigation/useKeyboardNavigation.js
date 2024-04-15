@@ -5,13 +5,11 @@ import { useView } from '../../contexts/ViewContext';
 
 export const useKeyboardNavigation = (onEnter) => {
   const { selectedDay, setSelectedDay } = useCalendar();
-  const { currentView, setCurrentView, isSidebarMinimized, setIsSidebarMinimized, isPopupOpen } = useView();
+  const { currentView, setCurrentView,  isPopupOpen } = useView();
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (!isSidebarMinimized || isPopupOpen) {
-        return;
-      }
-      else if (currentView == 'monthView') {
+      console.log(currentView)
+      if (currentView == '/month') {
           let newSelectedDay = selectedDay;
           switch (e.key) {
             case 'ArrowRight':
@@ -35,7 +33,7 @@ export const useKeyboardNavigation = (onEnter) => {
           if (!isSameDay(newSelectedDay, selectedDay)) {
             setSelectedDay(newSelectedDay);
           }
-      } else if (currentView == 'weekView') {
+      } else if (currentView == '/week') {
         let newSelectedDay = selectedDay;
           switch (e.key) {
             case 'ArrowRight':
@@ -45,7 +43,7 @@ export const useKeyboardNavigation = (onEnter) => {
               newSelectedDay = addDays(selectedDay, -1);
               break;
             case 'Enter':
-              if (onEnter) onEnter(); // Call the onEnter function if defined
+              if (onEnter) onEnter();
               break;
             default:
               break;
@@ -58,5 +56,5 @@ export const useKeyboardNavigation = (onEnter) => {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedDay, setSelectedDay, isSidebarMinimized, isPopupOpen, currentView]);
+  }, [selectedDay, setSelectedDay, isPopupOpen, currentView]);
 };
