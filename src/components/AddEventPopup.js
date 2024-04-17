@@ -118,7 +118,42 @@ const AddEventPopup = ({ closePopup, editingEvent = null }) => {
         socket.off('buttonPress', handleConfirmDelete);
       }
     };
-  }, [socket, handleSubmit, closePopup]);
+  }, [startRecording, isCapturing, stopRecording]);
+
+  useEffect(() => {
+    const handleButtonPress = (buttonId) => {
+      switch (buttonId) {
+        case "TimeAudioStart" && !isCapturing:
+          setIsCapturing(true);
+          startRecording();
+          break;
+        case "TitleAudioStart" && !isCapturing:
+          setIsCapturing(true);
+          startRecording();
+          break;
+        case "TimeAudio" && isCapturing:
+          setIsCapturing(false);
+          stopRecording();
+          break;
+        case "TitleAudio" && isCapturing:
+          setIsCapturing(false);
+          stopRecording();
+          break;
+        default:
+          break;
+      }
+    };
+
+    if (socket) {
+      socket.on('buttonPress', handleButtonPress);
+    }
+
+    return () => {
+      if (socket) {
+        socket.off('buttonPress', handleButtonPress);
+      }
+    };
+  }, [socket,]);
 
   return (
     <div className="popup-overlay">
