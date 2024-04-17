@@ -73,6 +73,28 @@ const AddEventPopup = ({ closePopup, editingEvent = null }) => {
 
   const capitalizeWords = (text) => text.replace(/\b(\w)/g, s => s.toUpperCase());
 
+  
+  const handleSubmit = useCallback(() => {
+    const event = {
+      ...editingEvent,
+      name: eventName,
+      date: selectedDay, // Using selectedDay for the date
+      time: eventTime, // Use state time
+    };
+    if (editingEvent) {
+      editEvent(event);
+    } else {
+      addEvent(event);
+    }
+    closePopup();
+  }, [eventName, eventTime, selectedDay, editingEvent, addEvent, editEvent, closePopup]);
+
+  const handleSubmitClick = (e) => {
+    console.log(selectedDay)
+    e.preventDefault();
+    handleSubmit();
+  }
+
   useEffect(() => {
     const handleConfirmDelete = (buttonId) => {
       switch (buttonId) {
@@ -97,28 +119,6 @@ const AddEventPopup = ({ closePopup, editingEvent = null }) => {
       }
     };
   }, [socket, handleSubmit, closePopup]);
-
-  
-  const handleSubmit = useCallback(() => {
-    const event = {
-      ...editingEvent,
-      name: eventName,
-      date: selectedDay, // Using selectedDay for the date
-      time: eventTime, // Use state time
-    };
-    if (editingEvent) {
-      editEvent(event);
-    } else {
-      addEvent(event);
-    }
-    closePopup();
-  }, [eventName, eventTime, selectedDay, editingEvent, addEvent, editEvent, closePopup]);
-
-  const handleSubmitClick = (e) => {
-    console.log(selectedDay)
-    e.preventDefault();
-    handleSubmit();
-  }
 
   return (
     <div className="popup-overlay">
