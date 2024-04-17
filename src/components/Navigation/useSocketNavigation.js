@@ -14,7 +14,7 @@ export const useSocketNavigation = (onEnter) => {
         if (!socket) return;
 
         const handleButtonPress = (buttonId) => {
-            if (currentView == 'monthView') {
+            if (currentView == '/month') {
                 let newSelectedDay = selectedDay;
                 switch (buttonId) {
                     case 'rightKnob':
@@ -32,7 +32,7 @@ export const useSocketNavigation = (onEnter) => {
                 if (!isSameDay(newSelectedDay, selectedDay)) {
                     setSelectedDay(newSelectedDay);
                 }
-            } else if (currentView == 'weekView') {
+            } else if (currentView == '/week') {
                 let newSelectedDay = selectedDay;
                 switch (buttonId) {
                     case 'rightKnob':

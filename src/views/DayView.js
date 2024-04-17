@@ -88,7 +88,7 @@ const DayView = () => {
           </div>
         ))
       ) : (
-        <p>No events for today!</p>
+        <div className='no-events-message'>No events for today!</div>
       )}
       {isPopupOpen && <AddEventPopup closePopup={() => setIsPopupOpen(false)} editingEvent={editingEvent} />}
     </div>

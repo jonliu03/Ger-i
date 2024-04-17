@@ -47,7 +47,8 @@ const Sidebar = () => {
     const handleButtonPress = (buttonId) => {
       console.log("Button received: " + buttonId);
       if (buttonId === 'DayWeekMonth') {
-        // TODO
+        setFocusedIndex((prevIndex) => (prevIndex + 1) % (menuItems.length));
+        handleNavigate(menuItems[(focusedIndex + 1) % menuItems.length].path, (focusedIndex + 1) % menuItems.length);
       }
     };
 

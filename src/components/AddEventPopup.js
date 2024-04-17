@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import './AddEventPopup.css';
 import { useCalendar, eventDateToOffsetString } from '../contexts/CalendarContext';
 import { useView } from '../contexts/ViewContext';
+import { useSocket } from '../components/Navigation/socket';
 
 const AddEventPopup = ({ closePopup, editingEvent = null }) => {
   const [eventName, setEventName] = useState('');
@@ -11,6 +12,7 @@ const AddEventPopup = ({ closePopup, editingEvent = null }) => {
   const { selectedDay, setSelectedDay, events} = useCalendar();
   const { addEvent, editEvent } = useCalendar();
   const { isPopupOpen, setIsPopupOpen } = useView();
+  const socket = useSocket();
 
   useEffect(() => {
     // Pre-populate form if editing an event
@@ -71,7 +73,30 @@ const AddEventPopup = ({ closePopup, editingEvent = null }) => {
 
   const capitalizeWords = (text) => text.replace(/\b(\w)/g, s => s.toUpperCase());
 
+  useEffect(() => {
+    const handleConfirmDelete = (buttonId) => {
+      switch (buttonId) {
+        case "Confirm":
+          handleSubmit();
+          break;
+        case "DElete":
+          closePopup();
+          break;
+        default:
+          break;
+      }
+    };
 
+    if (socket) {
+      socket.on('buttonPress', handleConfirmDelete);
+    }
+
+    return () => {
+      if (socket) {
+        socket.off('buttonPress', handleConfirmDelete);
+      }
+    };
+  }, [socket, handleSubmit, closePopup]);
 
   
   const handleSubmit = useCallback(() => {

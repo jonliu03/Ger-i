@@ -33,7 +33,7 @@
 
 .title {
   font-weight: bold;
-  font-size: x-large;
+  font-size: 3rem;
   text-align: center;
 }
 
@@ -85,9 +85,9 @@
 }
 
 .no-events-message {
-  text-align: center;
   color: #666;
   margin-top: 20px;
+  font-size: 2rem;
 }
 
 .selected-day {

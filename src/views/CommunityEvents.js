@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useCalendar } from '../contexts/CalendarContext'; // Adjust path as needed
 import './CommunityEvents.css'; // Assume you have appropriate CSS for styling
+import { useSocket } from '../components/Navigation/socket';
 
 const eventsData = [
   {
@@ -49,6 +50,7 @@ const eventsData = [
 const CommunityEvents = () => {
   const [currentEventIndex, setCurrentEventIndex] = useState(0);
   const { events, addEvent, removeEvent } = useCalendar();
+  const socket = useSocket();
 
   const handleToggleJoin = (event) => {
     // Check if the event is currently joined by looking it up in the global events array
@@ -79,6 +81,33 @@ const CommunityEvents = () => {
   };
 
   const currentEvent = eventsData[currentEventIndex];
+
+  //Socket for knob navigation
+  useEffect(() => {
+    const handleButtonPress = (buttonId) => {
+      if (buttonId === 'rightKnob') {
+        handleToggleEvent(1);
+      }
+      if (buttonId === 'leftKnob') {
+        handleToggleEvent(-1);
+      }
+      if (buttonId === 'SElect') {
+        handleToggleJoin(currentEvent);
+      }
+    };
+
+    // Subscribe to socket event when the component mounts
+    if (socket) {
+      socket.on('buttonPress', handleButtonPress);
+    }
+
+    // Cleanup - Unsubscribe from socket event when the component unmounts
+    return () => {
+      if (socket) {
+        socket.off('buttonPress', handleButtonPress);
+      }
+    };
+  }, [currentEvent]);
 
   return (
     <div className="community-events">
