@@ -101,7 +101,7 @@ const AddEventPopup = ({ closePopup, editingEvent = null }) => {
         case "Confirm":
           handleSubmit();
           break;
-        case "DElete":
+        case "DELete":
           closePopup();
           break;
         default:
