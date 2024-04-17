@@ -87,7 +87,7 @@ const Sidebar = () => {
       <div className="sidebar-logo">
         <img src={logo} />
       </div>
-      <h3>Bridge</h3>
+      <h3>Tom-i</h3>
       <nav className="nav">
         <ul>
           {menuItems.map((item, index) => (

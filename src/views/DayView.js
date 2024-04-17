@@ -4,11 +4,13 @@ import { format, isBefore, isAfter, startOfWeek, endOfWeek, addDays, startOfMont
 import AddEventPopup from '../components/AddEventPopup';
 import { useView } from '../contexts/ViewContext';
 import { useKeyboardNavigation } from '../components/Navigation/useKeyboardNavigation';
+import { useSocket } from '../components/Navigation/socket';
 
 const DayView = () => {
   const { selectedDay, setSelectedDay, events, setEditingEvent, editingEvent } = useCalendar();
   const { isPopupOpen, setIsPopupOpen } = useView();
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const socket = useSocket();
 
   const dayEvents = events.filter((event) => isSameDay(event.date, selectedDay));
 
@@ -40,7 +42,6 @@ const DayView = () => {
   };
 
   useEffect(() => {
-    console.log(selectedDay);
 
     const handleKeyDown = (event) => {
       switch (event.key) {
@@ -63,7 +64,6 @@ const DayView = () => {
         default:
           break;
       }
-      console.log(selectedIndex);
     };
 
     // Add event listener
@@ -72,6 +72,43 @@ const DayView = () => {
     // Remove event listener on cleanup
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [selectedIndex, setSelectedIndex, dayEvents, setEditingEvent, setIsPopupOpen]);
+
+  useEffect(() => {
+    const handleButtonPress = (buttonId) => {
+      switch (buttonId) {
+        case "leftKnob":
+          if (selectedIndex > 0) {
+            setSelectedIndex(selectedIndex - 1);
+          }
+          break;
+        case "rightKnob":
+          if (selectedIndex < dayEvents.length - 1) {
+            setSelectedIndex(selectedIndex + 1);
+          }
+          break;
+        case "SElect":
+          if (selectedIndex !== -1) {
+            setEditingEvent(dayEvents[selectedIndex]);
+            setIsPopupOpen(true);
+          }
+          break;
+        default:
+          break;
+      }
+    };
+
+    // Subscribe to socket event when the component mounts
+    if (socket) {
+      socket.on('buttonPress', handleButtonPress);
+    }
+
+    // Cleanup - Unsubscribe from socket event when the component unmounts
+    return () => {
+      if (socket) {
+        socket.off('buttonPress', handleButtonPress);
+      }
     };
   }, [selectedIndex, setSelectedIndex, dayEvents, setEditingEvent, setIsPopupOpen]);
 
