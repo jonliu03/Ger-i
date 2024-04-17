@@ -11,6 +11,7 @@ const Sidebar = () => {
   const [focusedIndex, setFocusedIndex] = useState(0);
   const { isPopupOpen, setIsPopupOpen, setCurrentView } = useView();
   const socket = useSocket();
+  const location = useLocation();
 
   const navigate = useNavigate();
   const menuItems = [
@@ -19,8 +20,14 @@ const Sidebar = () => {
     { name: "Month View", path: "/month" },
     { name: "Join Events", path: "/community" },
   ];
+  const findFocusedIndex = () => menuItems.findIndex(item => item.path === location.pathname);
 
-  const location = useLocation();
+  useEffect(() => {
+    const currentFocusedIndex = findFocusedIndex();
+    if (currentFocusedIndex !== focusedIndex) {
+      setFocusedIndex(currentFocusedIndex);
+    }
+  }, [location.pathname]);
 
   const togglePopup = () => {
     setShowPopup(!showPopup);

@@ -6,9 +6,11 @@ import { useView } from '../../contexts/ViewContext';
 export const useKeyboardNavigation = (onEnter) => {
   const { selectedDay, setSelectedDay } = useCalendar();
   const { currentView, setCurrentView,  isPopupOpen } = useView();
+  
   useEffect(() => {
     const handleKeyDown = (e) => {
-      console.log(currentView)
+
+      console.log(selectedDay);
       if (currentView == '/month') {
           let newSelectedDay = selectedDay;
           switch (e.key) {

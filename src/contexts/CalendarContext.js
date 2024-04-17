@@ -4,6 +4,7 @@ const CalendarContext = createContext({
   events: [],
   addEvent: () => {},
   editEvent: () => {},
+  removeEvent: () => {},
   selectedDay: new Date(),
   setSelectedDay: () => {},
 });
@@ -49,7 +50,7 @@ export const CalendarProvider = ({ children }) => {
 
   // Function to add a new event
   const addEvent = (newEvent) => {
-    setEvents((prevEvents) => [...prevEvents, { ...newEvent, id: Date.now() }].sort(
+    setEvents((prevEvents) => [...prevEvents, { ...newEvent}].sort(
       (a, b) => {
         const timeA = a.time.split(':').map(Number);
         const timeB = b.time.split(':').map(Number);
@@ -70,12 +71,17 @@ export const CalendarProvider = ({ children }) => {
     );
   };
 
+  const removeEvent = (eventId) => {
+    setEvents((prevEvents) => prevEvents.filter(event => event.id !== eventId));
+  };
+
   return (
     <CalendarContext.Provider
       value={{
         events,
         addEvent,
         editEvent,
+        removeEvent,
         selectedDay,
         setSelectedDay,
         editingEvent,

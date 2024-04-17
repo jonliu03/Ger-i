@@ -10,7 +10,7 @@ const DayView = () => {
   const { isPopupOpen, setIsPopupOpen } = useView();
   const [selectedIndex, setSelectedIndex] = useState(0);
 
-  const dayEvents = events.filter((event) => event.date === selectedDay);
+  const dayEvents = events.filter((event) => isSameDay(event.date, selectedDay));
 
   const isSelected = (event) => isSameDay(event.date, selectedDay);
 
@@ -40,8 +40,7 @@ const DayView = () => {
   };
 
   useEffect(() => {
-    console.log(`Day events length ${dayEvents.length}`, selectedIndex);
-    setSelectedIndex(dayEvents.length > 0 ? 0 : -1);
+    console.log(selectedDay);
 
     const handleKeyDown = (event) => {
       switch (event.key) {
