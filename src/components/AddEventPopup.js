@@ -118,7 +118,7 @@ const AddEventPopup = ({ closePopup, editingEvent = null }) => {
         socket.off('buttonPress', handleConfirmDelete);
       }
     };
-  }, [startRecording, isCapturing, stopRecording]);
+  }, [socket, handleSubmit, closePopup]);
 
   useEffect(() => {
     const handleButtonPress = (buttonId) => {
@@ -153,7 +153,7 @@ const AddEventPopup = ({ closePopup, editingEvent = null }) => {
         socket.off('buttonPress', handleButtonPress);
       }
     };
-  }, [socket,]);
+  }, [socket, startRecording, isCapturing, stopRecording]);
 
   return (
     <div className="popup-overlay">
