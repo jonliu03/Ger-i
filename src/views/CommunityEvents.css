@@ -67,25 +67,18 @@
     top: 50%;
     transform: translateY(-50%);
     color: white;
-    font-size: 24px; /* Large size for visibility */
-    background: rgba(0, 0, 0, 0.5); /* Semi-transparent black for contrast */
-    border: none;
-    padding: 10px 20px;
+    font-size: 24px; /* Adjust size as needed */
+    background: none; /* Remove the background */
+    border: none; /* Remove border styling */
+    padding: 10px 15px; /* Adjust padding as needed */
     cursor: pointer;
-    border-radius: 50%; /* Makes the button circular */
-    width: 100px; /* Fixed width */
-    height: 100px; /* Fixed height */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
     z-index: 10;
-    transition: background-color 0.3s;
+    transition: color 0.3s;
     font-size: 4rem;
   }
   
   .toggle-button:hover {
-    background-color: rgba(0, 0, 0, 0.8); /* Darken on hover for feedback */
+    color: #ccc; /* Lighter color on hover for visibility */
   }
   
   
