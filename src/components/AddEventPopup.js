@@ -97,7 +97,7 @@ const AddEventPopup = ({ closePopup, editingEvent = null }) => {
 
   useEffect(() => {
     const handleButtonPress = (buttonId) => {
-      console.log("Button received: " + buttonId);
+      console.log("Button received: " + buttonId, isCapturing);
       switch (buttonId) {
         case "Confirm":
           handleSubmit();
