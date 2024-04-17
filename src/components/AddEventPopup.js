@@ -105,19 +105,19 @@ const AddEventPopup = ({ closePopup, editingEvent = null }) => {
         case "DELete":
           closePopup();
           break;
-        case "TimeAudioStart" && !isCapturing:
+        case "TimeAudioStart":
           setIsCapturing(true);
           startRecording();
           break;
-        case "TitleAudioStart" && !isCapturing:
+        case "TitleAudioStart":
           setIsCapturing(true);
           startRecording();
           break;
-        case "TimeAudio" && isCapturing:
+        case "TimeAudio":
           setIsCapturing(false);
           stopRecording();
           break;
-        case "TitleAudio" && isCapturing:
+        case "TitleAudio":
           setIsCapturing(false);
           stopRecording();
           break;
