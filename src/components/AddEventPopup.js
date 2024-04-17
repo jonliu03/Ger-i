@@ -96,7 +96,7 @@ const AddEventPopup = ({ closePopup, editingEvent = null }) => {
   }
 
   useEffect(() => {
-    const handleConfirmDelete = (buttonId) => {
+    const handleButtonPress = (buttonId) => {
       switch (buttonId) {
         case "Confirm":
           handleSubmit();
@@ -104,25 +104,6 @@ const AddEventPopup = ({ closePopup, editingEvent = null }) => {
         case "DELete":
           closePopup();
           break;
-        default:
-          break;
-      }
-    };
-
-    if (socket) {
-      socket.on('buttonPress', handleConfirmDelete);
-    }
-
-    return () => {
-      if (socket) {
-        socket.off('buttonPress', handleConfirmDelete);
-      }
-    };
-  }, [socket, handleSubmit, closePopup]);
-
-  useEffect(() => {
-    const handleButtonPress = (buttonId) => {
-      switch (buttonId) {
         case "TimeAudioStart" && !isCapturing:
           setIsCapturing(true);
           startRecording();
@@ -153,7 +134,7 @@ const AddEventPopup = ({ closePopup, editingEvent = null }) => {
         socket.off('buttonPress', handleButtonPress);
       }
     };
-  }, [socket, startRecording, isCapturing, stopRecording]);
+  }, [socket, handleSubmit, closePopup, startRecording, isCapturing, stopRecording]);
 
   return (
     <div className="popup-overlay">
