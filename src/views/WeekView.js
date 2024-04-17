@@ -23,6 +23,9 @@ const WeekView = () => {
     });
 
     useSocketNavigation(() => {
+        if (isPopupOpen) {
+            return;
+        }
         setIsPopupOpen(true);
     });
 

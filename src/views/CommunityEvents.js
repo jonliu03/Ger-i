@@ -30,9 +30,9 @@ const eventsData = [
   },
   {
     id: 4,
-    name: 'Coding Hackathon',
-    description: 'Participate in our hackathon to innovate, create, and code your way through challenges. Collaborate with peers and compete for prizes in a creative and supportive environment.',
-    background: 'url(/images/coding-hackathon.jpeg)',
+    name: 'Bingo Night',
+    description: 'Participate in our bingo tournament to win exciting prizes and enjoy a night of fun and laughter with friends and family.',
+    background: 'url(/images/bingo.jpg)',
     joined: false,
     date: new Date(2024, 4, 1)
   },

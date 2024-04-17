@@ -32,6 +32,9 @@ const MonthView = () => {
   });
 
   useSocketNavigation(() => {
+    if (isPopupOpen) {
+      return;
+    }
     setIsPopupOpen(true);
   });
 
