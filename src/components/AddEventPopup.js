@@ -165,12 +165,12 @@ const AddEventPopup = ({ closePopup, editingEvent = null }) => {
           setIsCapturing(true);
          //  startRecording();
           break;
-        case "TimeAudio" && isCapturing:
+        case "TimeAudio":
           setIsCapturing(false);
           //stopRecording();
           setEventTime(formatTimeForInput("3:00 pm"));
           break;
-        case "TitleAudio" && isCapturing:
+        case "TitleAudio":
           setIsCapturing(false);
           // stopRecording();
           setEventName("Bridge");
