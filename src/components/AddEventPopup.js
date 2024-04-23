@@ -33,6 +33,7 @@ const AddEventPopup = ({ closePopup, editingEvent = null }) => {
   const handleRecording = useCallback((action) => {
     navigator.mediaDevices.getUserMedia({ audio: true })
       .then(stream => {
+        console.log("Recording...");
         const mediaRecorder = new MediaRecorder(stream);
         mediaRecorder.start();
         let audioChunks = [];
@@ -54,6 +55,8 @@ const AddEventPopup = ({ closePopup, editingEvent = null }) => {
         });
 
         if (action === 'stop') {
+
+          console.log("Recording stopped.");
           mediaRecorder.stop();
           stream.getTracks().forEach(track => track.stop());
         }

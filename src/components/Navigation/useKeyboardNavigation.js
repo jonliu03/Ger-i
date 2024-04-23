@@ -9,8 +9,6 @@ export const useKeyboardNavigation = (onEnter) => {
   
   useEffect(() => {
     const handleKeyDown = (e) => {
-
-      console.log(selectedDay);
       if (currentView == '/month') {
           let newSelectedDay = selectedDay;
           switch (e.key) {
