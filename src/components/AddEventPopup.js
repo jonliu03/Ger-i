@@ -54,6 +54,10 @@ const AddEventPopup = ({ closePopup, editingEvent = null }) => {
   }, [setAudioChunks, setMediaRecorder]);
 
   useEffect(() => {
+    if (!speechSocket) {
+      console.log("WebSocket is not initialized.");
+      return;
+    }
     speechSocket.onmessage = (event) => {
       const data = JSON.parse(event.data);
       console.log('Recognition Result:', data.text);
@@ -71,7 +75,11 @@ const AddEventPopup = ({ closePopup, editingEvent = null }) => {
       reader.readAsDataURL(audioBlob);
       reader.onloadend = () => {
         const base64data = reader.result;
-        speechSocket.send(JSON.stringify({ audio: base64data }));
+        if (speechSocket) {
+          speechSocket.send(JSON.stringify({ audio: base64data }));
+        } else {
+          console.error("WebSocket is not initialized.");
+        }
       };
     };
   }, [speechSocket, mediaRecorder, audioChunks]);
