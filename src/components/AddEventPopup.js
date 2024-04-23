@@ -93,7 +93,7 @@ const AddEventPopup = ({ closePopup, editingEvent = null }) => {
         startRecording();
       }
     };
-
+    
     const handleKeyUp = (event) => {
       if (event.key === 'F1' && isCapturing) {
         setIsCapturing(false);
@@ -105,7 +105,7 @@ const AddEventPopup = ({ closePopup, editingEvent = null }) => {
         event.preventDefault();
         stopRecording();
       }
-    };
+    }; 
 
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
@@ -114,7 +114,7 @@ const AddEventPopup = ({ closePopup, editingEvent = null }) => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, [startRecording, isCapturing, stopRecording]);
+  }, [startRecording, setLastPressed, lastPressed, isCapturing, stopRecording]);
 
 
   const capitalizeWords = (text) => text.replace(/\b(\w)/g, s => s.toUpperCase());
@@ -152,10 +152,12 @@ const AddEventPopup = ({ closePopup, editingEvent = null }) => {
           closePopup();
           break;
         case "TimeAudioStart" && !isCapturing:
+          setLastPressed('time');
           setIsCapturing(true);
           startRecording();
           break;
         case "TitleAudioStart" && !isCapturing:
+          setLastPressed('title');
           setIsCapturing(true);
           startRecording();
           break;
@@ -181,7 +183,7 @@ const AddEventPopup = ({ closePopup, editingEvent = null }) => {
         socket.off('buttonPress', handleButtonPress);
       }
     };
-  }, [socket, handleSubmit, closePopup, startRecording, isCapturing, stopRecording]);
+  }, [socket, handleSubmit, closePopup, setLastPressed, lastPressed, startRecording, isCapturing, stopRecording]);
 
   return (
     <div className="popup-overlay">
