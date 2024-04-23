@@ -38,7 +38,7 @@ const AddEventPopup = ({ closePopup, editingEvent = null }) => {
     speechSocket.onmessage = (message) => {
       const data = JSON.parse(message.data);
       if (data.type === 'transcription') {
-        setTitle(data.transcript);
+        setEventName(data.transcript);
         setIsCapturing(false);
       }
     };
