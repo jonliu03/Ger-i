@@ -8,13 +8,22 @@ const AddEventPopup = ({ closePopup, editingEvent = null }) => {
   const [eventName, setEventName] = useState('');
   const [eventTime, setEventTime] = useState('');
   const [isCapturing, setIsCapturing] = useState(false);
-  const [speechSocket, setSpeechSocket] = useState(new WebSocket('ws://192.168.0.105:3000'));
+  const [speechSocket, setSpeechSocket] = useState(null);
   const { selectedDay, setSelectedDay, events } = useCalendar();
   const { addEvent, editEvent } = useCalendar();
   const { isPopupOpen, setIsPopupOpen } = useView();
   const socket = useSocket();
   const [mediaRecorder, setMediaRecorder] = useState(null);
   const [audioChunks, setAudioChunks] = useState([]);
+
+  useEffect(() => {
+    const socket = new WebSocket('ws://192.168.0.105:3000');
+    setSpeechSocket(socket);
+  
+    return () => {
+      socket.close();  // Clean up the socket when the component unmounts
+    };
+  }, []);
 
   useEffect(() => {
     // Pre-populate form if editing an event
