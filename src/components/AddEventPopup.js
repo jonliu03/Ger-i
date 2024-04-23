@@ -19,8 +19,10 @@ const AddEventPopup = ({ closePopup, editingEvent = null }) => {
   useEffect(() => {
     const socket = new WebSocket('ws://192.168.0.105:3000');
     setSpeechSocket(socket);
+    console.log("Speech socket initialized.");
   
     return () => {
+      console.log("Speech socket closed.")
       socket.close();  // Clean up the socket when the component unmounts
     };
   }, []);
