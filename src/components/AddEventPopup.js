@@ -56,7 +56,7 @@ const AddEventPopup = ({ closePopup, editingEvent = null }) => {
   useEffect(() => {
     speechSocket.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      console.log('Recognition Result:', data.text);
+      console.log('Recognition time result:', data.text);
       if (lastPressed === 'time') {
         if (!data.isFinal) {
           return;
@@ -66,6 +66,7 @@ const AddEventPopup = ({ closePopup, editingEvent = null }) => {
         setEventTime(parsedTime);
       }
       else if (lastPressed === 'title') {
+        console.log("Recognition title result:", data.text);
         setEventName(capitalizeWords(data.text));
       }
     };
