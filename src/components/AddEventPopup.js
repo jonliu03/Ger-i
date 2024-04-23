@@ -100,6 +100,11 @@ const AddEventPopup = ({ closePopup, editingEvent = null }) => {
         event.preventDefault();
         stopRecording();
       }
+      if (event.key === 'F2' && isCapturing) {
+        setIsCapturing(false);
+        event.preventDefault();
+        stopRecording();
+      }
     };
 
     window.addEventListener('keydown', handleKeyDown);
