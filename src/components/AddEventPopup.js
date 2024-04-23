@@ -114,7 +114,7 @@ const AddEventPopup = ({ closePopup, editingEvent = null }) => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, [startRecording, setLastPressed, lastPressed, isCapturing, stopRecording]);
+  }, [startRecording, setLastPressed, isCapturing, stopRecording]);
 
 
   const capitalizeWords = (text) => text.replace(/\b(\w)/g, s => s.toUpperCase());
@@ -183,7 +183,7 @@ const AddEventPopup = ({ closePopup, editingEvent = null }) => {
         socket.off('buttonPress', handleButtonPress);
       }
     };
-  }, [socket, handleSubmit, closePopup, setLastPressed, lastPressed, startRecording, isCapturing, stopRecording]);
+  }, [socket, handleSubmit, closePopup, setLastPressed, startRecording, isCapturing, stopRecording]);
 
   return (
     <div className="popup-overlay">
