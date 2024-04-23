@@ -17,60 +17,70 @@ const AddEventPopup = ({ closePopup, editingEvent = null }) => {
   const [audioChunks, setAudioChunks] = useState([]);
 
   useEffect(() => {
+    // Pre-populate form if editing an event
     if (editingEvent) {
+      // Use editingEvent's date and time directly for datetime-local input
+      // Assuming editingEvent.date and editingEvent.time are properly formatted
       setEventName(editingEvent.name);
-      setEventTime(editingEvent.time);
+      setEventTime(editingEvent.time); // This sets both date and time in the input
     }
   }, [editingEvent]);
+
+  const startRecording = useCallback(() => {
+    console.log("Starting recording.");
+
+    navigator.mediaDevices.getUserMedia({ audio: true })
+      .then(stream => {
+        const recorder = new MediaRecorder(stream);
+        setMediaRecorder(recorder);
+        setAudioChunks([]);
+
+        recorder.ondataavailable = event => {
+          setAudioChunks(prev => [...prev, event.data]);
+        };
+
+        recorder.start(); // Start recording after everything is set up
+      })
+      .catch(error => console.error("Error accessing the microphone: ", error));
+  }, [setAudioChunks, setMediaRecorder]);
 
   useEffect(() => {
     speechSocket.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      if (data.type === 'text') {
-        setEventName(data.text);
-      }
+      console.log('Recognition Result:', data.text);
+      setEventName(capitalizeWords(data.text));
     };
-  }, [speechSocket]);
+  }, [speechSocket, setEventName]);
 
-  useEffect(() => {
-    // Setup WebSocket event handlers
-    speechSocket.onopen = () => console.log("WebSocket connected");
-    speechSocket.onmessage = (message) => {
-      const data = JSON.parse(message.data);
-      if (data.type === 'transcription') {
-        setEventName(data.transcript);
-        setIsCapturing(false);
-      }
-    };
-    speechSocket.onclose = () => console.log("WebSocket disconnected");
+  const stopRecording = useCallback(() => {
 
-    // Cleanup on component unmount
-    return () => {
-      speechSocket.close();
+    console.log("Stopping recording.");
+    mediaRecorder.stop();
+    mediaRecorder.onstop = () => {
+      const audioBlob = new Blob(audioChunks);
+      const reader = new FileReader();
+      reader.readAsDataURL(audioBlob);
+      reader.onloadend = () => {
+        const base64data = reader.result;
+        speechSocket.send(JSON.stringify({ audio: base64data }));
+      };
     };
-  }, [speechSocket]);
-
-  useEffect(() => {
-    const initMedia = async () => {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const recorder = new MediaRecorder(stream);
-      setMediaRecorder(recorder);
-    };
-    initMedia();
-  }, []);
+  }, [speechSocket, mediaRecorder, audioChunks]);
 
   useEffect(() => {
     const handleKeyDown = (event) => {
       if (event.key === 'F1' && !isCapturing) {
         setIsCapturing(true);
-        handleRecording('start');
+        event.preventDefault();
+        startRecording();
       }
     };
 
     const handleKeyUp = (event) => {
       if (event.key === 'F1' && isCapturing) {
         setIsCapturing(false);
-        handleRecording('stop');
+        event.preventDefault();
+        stopRecording();
       }
     };
 
@@ -81,41 +91,18 @@ const AddEventPopup = ({ closePopup, editingEvent = null }) => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, [handleRecording, isCapturing]);
+  }, [startRecording, isCapturing, stopRecording]);
 
-  const handleRecording = (action) => {
-    if (action === 'start') {
-      if (mediaRecorder && mediaRecorder.state === 'inactive') {
-        setAudioChunks([]);
-        mediaRecorder.start();
-        mediaRecorder.ondataavailable = event => {
-          setAudioChunks(prev => [...prev, event.data]);
-        };
-      }
-    } else if (action === 'stop') {
-      if (mediaRecorder && mediaRecorder.state === 'recording') {
-        mediaRecorder.stop();
-        mediaRecorder.onstop = () => {
-          const audioBlob = new Blob(audioChunks);
-          const reader = new FileReader();
-          reader.readAsDataURL(audioBlob);
-          reader.onloadend = () => {
-            const base64data = reader.result;
-            speechSocket.send(JSON.stringify({ audio: base64data }));
-          };
-        };
-      }
-    }
-  };
 
   const capitalizeWords = (text) => text.replace(/\b(\w)/g, s => s.toUpperCase());
+
 
   const handleSubmit = useCallback(() => {
     const event = {
       ...editingEvent,
       name: eventName,
-      date: selectedDay,
-      time: eventTime,
+      date: selectedDay, // Using selectedDay for the date
+      time: eventTime, // Use state time
     };
     if (editingEvent) {
       editEvent(event);
@@ -131,7 +118,36 @@ const AddEventPopup = ({ closePopup, editingEvent = null }) => {
     handleSubmit();
   }
 
-  /*
+  useEffect(() => {
+    const handleButtonPress = (buttonId) => {
+      console.log("Button received: " + buttonId, isCapturing);
+      switch (buttonId) {
+        case "Confirm":
+          handleSubmit();
+          break;
+        case "DELete":
+          closePopup();
+          break;
+        case "TimeAudioStart":
+          setIsCapturing(true);
+          startRecording();
+          break;
+        case "TitleAudioStart":
+          setIsCapturing(true);
+          startRecording();
+          break;
+        case "TimeAudio":
+          setIsCapturing(false);
+          stopRecording();
+          break;
+        case "TitleAudio":
+          setIsCapturing(false);
+          stopRecording();
+          break;
+        default:
+          break;
+      }
+    };
 
     if (socket) {
       socket.on('buttonPress', handleButtonPress);
@@ -142,7 +158,7 @@ const AddEventPopup = ({ closePopup, editingEvent = null }) => {
         socket.off('buttonPress', handleButtonPress);
       }
     };
-  }, [socket, handleSubmit, closePopup, setIsCapturing, startRecording, isCapturing, stopRecording]); */
+  }, [socket, handleSubmit, closePopup, setIsCapturing, startRecording, isCapturing, stopRecording]);
 
   return (
     <div className="popup-overlay">
