@@ -69,18 +69,16 @@ const AddEventPopup = ({ closePopup, editingEvent = null }) => {
 
     console.log("Stopping recording.");
     mediaRecorder.stop();
-    mediaRecorder.onstop = () => {
-      const audioBlob = new Blob(audioChunks);
-      const reader = new FileReader();
-      reader.readAsDataURL(audioBlob);
-      reader.onloadend = () => {
-        const base64data = reader.result;
-        if (speechSocket) {
-          speechSocket.send(JSON.stringify({ audio: base64data }));
-        } else {
-          console.error("WebSocket is not initialized.");
-        }
-      };
+    const audioBlob = new Blob(audioChunks);
+    const reader = new FileReader();
+    reader.readAsDataURL(audioBlob);
+    reader.onloadend = () => {
+      const base64data = reader.result;
+      if (speechSocket) {
+        speechSocket.send(JSON.stringify({ audio: base64data }));
+      } else {
+        console.error("WebSocket is not initialized.");
+      }
     };
   }, [speechSocket, mediaRecorder, audioChunks]);
 
