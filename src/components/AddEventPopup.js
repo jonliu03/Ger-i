@@ -42,6 +42,10 @@ const AddEventPopup = ({ closePopup, editingEvent = null }) => {
     let [hours, minutes] = timePart.split(':');
     hours = parseInt(hours, 10);
     minutes = parseInt(minutes, 10);
+    if (!period) {
+      return '';
+    }
+
     
     // Convert to 24-hour format
     if (period.toLowerCase() === 'p.m.' && hours !== 12) {
@@ -114,7 +118,7 @@ const AddEventPopup = ({ closePopup, editingEvent = null }) => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, [startRecording, setLastPressed, isCapturing, stopRecording]);
+  }, [startRecording, setLastPressed, lastPressed, isCapturing, stopRecording]);
 
 
   const capitalizeWords = (text) => text.replace(/\b(\w)/g, s => s.toUpperCase());
