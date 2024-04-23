@@ -189,7 +189,7 @@ const AddEventPopup = ({ closePopup, editingEvent = null }) => {
         socket.off('buttonPress', handleButtonPress);
       }
     };
-  }, [socket, handleSubmit, closePopup, setLastPressed, startRecording, isCapturing, stopRecording]);
+  }, [socket, handleSubmit, closePopup, setLastPressed, startRecording, isCapturing, stopRecording, setEventTime, setEventName]);
 
   return (
     <div className="popup-overlay">
