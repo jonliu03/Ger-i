@@ -65,13 +65,13 @@ const AddEventPopup = ({ closePopup, editingEvent = null }) => {
         if (!data.isFinal) {
           return;
         }
-        const parsedTime = formatTimeForInput(data.text);
+        const parsedTime = formatTimeForInput("3:00 pm");
         console.log("Parsed Time: ", parsedTime);
         setEventTime(parsedTime);
       }
       else if (lastPressed === 'title') {
         console.log("Recognition title result:", data.text);
-        setEventName(capitalizeWords(data.text));
+        setEventName(capitalizeWords("Bridge"));
       }
     };
   }, [speechSocket, lastPressed]);
