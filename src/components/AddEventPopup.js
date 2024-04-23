@@ -8,56 +8,70 @@ const AddEventPopup = ({ closePopup, editingEvent = null }) => {
   const [eventName, setEventName] = useState('');
   const [eventTime, setEventTime] = useState('');
   const [isCapturing, setIsCapturing] = useState(false);
-  const [speechSocket, setSpeechSocket] = useState(new WebSocket('ws://localhost:3000/speech'));
+  const [speechSocket, setSpeechSocket] = useState(new WebSocket('ws://192.168.0.105:3000'));
   const { selectedDay, setSelectedDay, events} = useCalendar();
   const { addEvent, editEvent } = useCalendar();
   const { isPopupOpen, setIsPopupOpen } = useView();
   const socket = useSocket();
 
   useEffect(() => {
-    // Pre-populate form if editing an event
     if (editingEvent) {
-      // Use editingEvent's date and time directly for datetime-local input
-      // Assuming editingEvent.date and editingEvent.time are properly formatted
       setEventName(editingEvent.name);
-      setEventTime(editingEvent.time); // This sets both date and time in the input
+      setEventTime(editingEvent.time);
     }
   }, [editingEvent]);
-
-  const startRecording = useCallback(() => {
-    console.log("Starting recording...");
-    speechSocket.send('start');
-    
-  }, [speechSocket]);
 
   useEffect(() => {
     speechSocket.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      console.log('Recognition Result:', data.text);
-      setEventName(capitalizeWords(data.text));
+      if (data.type === 'text') {
+        setEventName(data.text);
+      }
     };
   }, [speechSocket]);
 
-  const stopRecording = useCallback(() => {
+  const handleRecording = useCallback((action) => {
+    navigator.mediaDevices.getUserMedia({ audio: true })
+      .then(stream => {
+        const mediaRecorder = new MediaRecorder(stream);
+        mediaRecorder.start();
+        let audioChunks = [];
 
-    console.log("Stopping recording.");
-    speechSocket.send('stop');
+        mediaRecorder.addEventListener("dataavailable", event => {
+          audioChunks.push(event.data);
+        });
+
+        mediaRecorder.addEventListener("stop", () => {
+          const audioBlob = new Blob(audioChunks);
+          const formData = new FormData();
+          formData.append("audio", audioBlob);
+          const reader = new FileReader();
+          reader.readAsDataURL(audioBlob);
+          reader.onloadend = () => {
+            const base64data = reader.result;
+            speechSocket.send(JSON.stringify({ action: action, data: base64data }));
+          };
+        });
+
+        if (action === 'stop') {
+          mediaRecorder.stop();
+          stream.getTracks().forEach(track => track.stop());
+        }
+      });
   }, [speechSocket]);
 
   useEffect(() => {
     const handleKeyDown = (event) => {
       if (event.key === 'F1' && !isCapturing) {
         setIsCapturing(true);
-        event.preventDefault();
-        startRecording();
+        handleRecording('start');
       }
     };
 
     const handleKeyUp = (event) => {
       if (event.key === 'F1' && isCapturing) {
         setIsCapturing(false);
-        event.preventDefault();
-        stopRecording();
+        handleRecording('stop');
       }
     };
 
@@ -68,7 +82,7 @@ const AddEventPopup = ({ closePopup, editingEvent = null }) => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, [startRecording, isCapturing, stopRecording]);
+  }, [handleRecording, isCapturing]);
 
 
   const capitalizeWords = (text) => text.replace(/\b(\w)/g, s => s.toUpperCase());
@@ -78,8 +92,8 @@ const AddEventPopup = ({ closePopup, editingEvent = null }) => {
     const event = {
       ...editingEvent,
       name: eventName,
-      date: selectedDay, // Using selectedDay for the date
-      time: eventTime, // Use state time
+      date: selectedDay,
+      time: eventTime,
     };
     if (editingEvent) {
       editEvent(event);
