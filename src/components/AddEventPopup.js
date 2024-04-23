@@ -9,10 +9,12 @@ const AddEventPopup = ({ closePopup, editingEvent = null }) => {
   const [eventTime, setEventTime] = useState('');
   const [isCapturing, setIsCapturing] = useState(false);
   const [speechSocket, setSpeechSocket] = useState(new WebSocket('ws://192.168.0.105:3000'));
-  const { selectedDay, setSelectedDay, events} = useCalendar();
+  const { selectedDay, setSelectedDay, events } = useCalendar();
   const { addEvent, editEvent } = useCalendar();
   const { isPopupOpen, setIsPopupOpen } = useView();
   const socket = useSocket();
+  const [mediaRecorder, setMediaRecorder] = useState(null);
+  const [audioChunks, setAudioChunks] = useState([]);
 
   useEffect(() => {
     if (editingEvent) {
@@ -30,38 +32,32 @@ const AddEventPopup = ({ closePopup, editingEvent = null }) => {
     };
   }, [speechSocket]);
 
-  const handleRecording = useCallback((action) => {
-    navigator.mediaDevices.getUserMedia({ audio: true })
-      .then(stream => {
-        console.log("Recording...");
-        const mediaRecorder = new MediaRecorder(stream);
-        mediaRecorder.start();
-        let audioChunks = [];
+  useEffect(() => {
+    // Setup WebSocket event handlers
+    speechSocket.onopen = () => console.log("WebSocket connected");
+    speechSocket.onmessage = (message) => {
+      const data = JSON.parse(message.data);
+      if (data.type === 'transcription') {
+        setTitle(data.transcript);
+        setIsCapturing(false);
+      }
+    };
+    speechSocket.onclose = () => console.log("WebSocket disconnected");
 
-        mediaRecorder.addEventListener("dataavailable", event => {
-          audioChunks.push(event.data);
-        });
-
-        mediaRecorder.addEventListener("stop", () => {
-          const audioBlob = new Blob(audioChunks);
-          const formData = new FormData();
-          formData.append("audio", audioBlob);
-          const reader = new FileReader();
-          reader.readAsDataURL(audioBlob);
-          reader.onloadend = () => {
-            const base64data = reader.result;
-            speechSocket.send(JSON.stringify({ action: action, data: base64data }));
-          };
-        });
-
-        if (action === 'stop') {
-
-          console.log("Recording stopped.");
-          mediaRecorder.stop();
-          stream.getTracks().forEach(track => track.stop());
-        }
-      });
+    // Cleanup on component unmount
+    return () => {
+      speechSocket.close();
+    };
   }, [speechSocket]);
+
+  useEffect(() => {
+    const initMedia = async () => {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream);
+      setMediaRecorder(recorder);
+    };
+    initMedia();
+  }, []);
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -87,10 +83,33 @@ const AddEventPopup = ({ closePopup, editingEvent = null }) => {
     };
   }, [handleRecording, isCapturing]);
 
+  const handleRecording = (action) => {
+    if (action === 'start') {
+      if (mediaRecorder && mediaRecorder.state === 'inactive') {
+        setAudioChunks([]);
+        mediaRecorder.start();
+        mediaRecorder.ondataavailable = event => {
+          setAudioChunks(prev => [...prev, event.data]);
+        };
+      }
+    } else if (action === 'stop') {
+      if (mediaRecorder && mediaRecorder.state === 'recording') {
+        mediaRecorder.stop();
+        mediaRecorder.onstop = () => {
+          const audioBlob = new Blob(audioChunks);
+          const reader = new FileReader();
+          reader.readAsDataURL(audioBlob);
+          reader.onloadend = () => {
+            const base64data = reader.result;
+            speechSocket.send(JSON.stringify({ audio: base64data }));
+          };
+        };
+      }
+    }
+  };
 
   const capitalizeWords = (text) => text.replace(/\b(\w)/g, s => s.toUpperCase());
 
-  
   const handleSubmit = useCallback(() => {
     const event = {
       ...editingEvent,
@@ -111,7 +130,7 @@ const AddEventPopup = ({ closePopup, editingEvent = null }) => {
     e.preventDefault();
     handleSubmit();
   }
-  
+
   /*
 
     if (socket) {
