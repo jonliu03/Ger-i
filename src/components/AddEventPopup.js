@@ -7,25 +7,13 @@ import { useSocket } from '../components/Navigation/socket';
 const AddEventPopup = ({ closePopup, editingEvent = null }) => {
   const [eventName, setEventName] = useState('');
   const [eventTime, setEventTime] = useState('');
+  const [lastPressed, setLastPressed] = useState(null);
   const [isCapturing, setIsCapturing] = useState(false);
-  const [speechSocket, setSpeechSocket] = useState(null);
-  const { selectedDay, setSelectedDay, events } = useCalendar();
+  const [speechSocket, setSpeechSocket] = useState(new WebSocket('ws://localhost:3003'));
+  const { selectedDay, setSelectedDay, events} = useCalendar();
   const { addEvent, editEvent } = useCalendar();
   const { isPopupOpen, setIsPopupOpen } = useView();
   const socket = useSocket();
-  const [mediaRecorder, setMediaRecorder] = useState(null);
-  const [audioChunks, setAudioChunks] = useState([]);
-
-  useEffect(() => {
-    const socket = new WebSocket('ws://192.168.0.105:3000');
-    setSpeechSocket(socket);
-    console.log("Speech socket initialized.");
-  
-    return () => {
-      console.log("Speech socket closed.")
-      socket.close();  // Clean up the socket when the component unmounts
-    };
-  }, []);
 
   useEffect(() => {
     // Pre-populate form if editing an event
@@ -38,55 +26,67 @@ const AddEventPopup = ({ closePopup, editingEvent = null }) => {
   }, [editingEvent]);
 
   const startRecording = useCallback(() => {
-    console.log("Starting recording.");
+    console.log("Starting recording...");
+    speechSocket.send('start');
+    
+  }, [speechSocket]);
 
-    navigator.mediaDevices.getUserMedia({ audio: true })
-      .then(stream => {
-        const recorder = new MediaRecorder(stream);
-        setMediaRecorder(recorder);
-        setAudioChunks([]);
+  const formatTimeForInput = (timeStr) => {
+    // Regular expression to match the time format "HH:MM AM/PM"
+    const trimmedTime = timeStr.trim();
+    
+    // Extract the time and period (AM/PM)
+    const [timePart, period] = trimmedTime.split(' ');
+    
+    // Split the time into hours and minutes
+    let [hours, minutes] = timePart.split(':');
+    hours = parseInt(hours, 10);
+    minutes = parseInt(minutes, 10);
+    
+    // Convert to 24-hour format
+    if (period.toLowerCase() === 'p.m.' && hours !== 12) {
+      hours += 12;
+    } else if (period.toLowerCase() === 'a.m.' && hours === 12) {
+      hours = 0;
+    }
 
-        recorder.ondataavailable = event => {
-          setAudioChunks(prev => [...prev, event.data]);
-        };
-
-        recorder.start(); // Start recording after everything is set up
-      })
-      .catch(error => console.error("Error accessing the microphone: ", error));
-  }, [setAudioChunks, setMediaRecorder]);
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+  };
 
   useEffect(() => {
-    if (!speechSocket) {
-      console.log("WebSocket is not initialized.");
-      return;
-    }
     speechSocket.onmessage = (event) => {
       const data = JSON.parse(event.data);
       console.log('Recognition Result:', data.text);
-      setEventName(capitalizeWords(data.text));
+      if (lastPressed === 'time') {
+        if (!data.isFinal) {
+          return;
+        }
+        const parsedTime = formatTimeForInput(data.text);
+        console.log("Parsed Time: ", parsedTime);
+        setEventTime(parsedTime);
+      }
+      else if (lastPressed === 'title') {
+        setEventName(capitalizeWords(data.text));
+      }
     };
-  }, [speechSocket, setEventName]);
+  }, [speechSocket, lastPressed]);
 
   const stopRecording = useCallback(() => {
 
     console.log("Stopping recording.");
-    mediaRecorder.stop();
-    const audioBlob = new Blob(audioChunks);
-    const reader = new FileReader();
-    reader.readAsDataURL(audioBlob);
-    reader.onloadend = () => {
-      const base64data = reader.result;
-      if (speechSocket) {
-        speechSocket.send(JSON.stringify({ audio: base64data }));
-      } else {
-        console.error("WebSocket is not initialized.");
-      }
-    };
-  }, [speechSocket, mediaRecorder, audioChunks]);
+    speechSocket.send('stop');
+  }, [speechSocket]);
 
   useEffect(() => {
     const handleKeyDown = (event) => {
       if (event.key === 'F1' && !isCapturing) {
+        setLastPressed('title');
+        setIsCapturing(true);
+        event.preventDefault();
+        startRecording();
+      }
+      if (event.key === 'F2' && !isCapturing) {
+        setLastPressed('time');
         setIsCapturing(true);
         event.preventDefault();
         startRecording();
@@ -113,7 +113,7 @@ const AddEventPopup = ({ closePopup, editingEvent = null }) => {
 
   const capitalizeWords = (text) => text.replace(/\b(\w)/g, s => s.toUpperCase());
 
-
+  
   const handleSubmit = useCallback(() => {
     const event = {
       ...editingEvent,
@@ -145,19 +145,19 @@ const AddEventPopup = ({ closePopup, editingEvent = null }) => {
         case "DELete":
           closePopup();
           break;
-        case "TimeAudioStart":
+        case "TimeAudioStart" && !isCapturing:
           setIsCapturing(true);
           startRecording();
           break;
-        case "TitleAudioStart":
+        case "TitleAudioStart" && !isCapturing:
           setIsCapturing(true);
           startRecording();
           break;
-        case "TimeAudio":
+        case "TimeAudio" && isCapturing:
           setIsCapturing(false);
           stopRecording();
           break;
-        case "TitleAudio":
+        case "TitleAudio" && isCapturing:
           setIsCapturing(false);
           stopRecording();
           break;
@@ -175,7 +175,7 @@ const AddEventPopup = ({ closePopup, editingEvent = null }) => {
         socket.off('buttonPress', handleButtonPress);
       }
     };
-  }, [socket, handleSubmit, closePopup, setIsCapturing, startRecording, isCapturing, stopRecording]);
+  }, [socket, handleSubmit, closePopup, startRecording, isCapturing, stopRecording]);
 
   return (
     <div className="popup-overlay">
